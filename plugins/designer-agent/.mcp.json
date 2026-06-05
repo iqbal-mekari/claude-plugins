@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "mobile-pixel-mcp": {
+      "type": "sse",
+      "url": "https://mobile-pixel-mcp-546272430844.asia-southeast1.run.app/sse",
+      "headers": {
+        "Authorization": "Bearer <SECRET_TOKEN>"
+      }
+    }
+  }
+}

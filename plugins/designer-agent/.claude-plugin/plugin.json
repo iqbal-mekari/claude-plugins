@@ -1,0 +1,10 @@
+{
+  "name": "designer-agent",
+  "description": "Design spec agent that converts Figma, images, or text requirements into purposeful UI/UX designs with ASCII wireframes and verified Mekari Pixel widget recommendations. Zero hallucination guaranteed.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Iqbal"
+  },
+  "license": "Apache-2.0",
+  "keywords": ["design", "ui", "ux", "pixel", "wireframe", "flutter", "figma"]
+}

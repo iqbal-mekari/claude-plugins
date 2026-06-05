@@ -1,0 +1,10 @@
+Create an invoice creation screen for a mobile accounting app. The screen should have:
+
+- A back button and "New Invoice" title at the top, with a "Save" action
+- A form with these fields:
+  - Client name (text input)
+  - Invoice amount (numeric input with currency prefix)
+  - Due date (date picker)
+  - Notes (multiline text input, optional)
+- A primary "Create Invoice" button at the bottom, full width
+- The form should scroll if content overflows

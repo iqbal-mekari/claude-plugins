@@ -15,6 +15,16 @@
         "name": "Iqbal"
       },
       "keywords": ["patrol", "flutter", "testing", "mobile", "ui-automation", "qa"]
+    },
+    {
+      "name": "designer-agent",
+      "source": "./plugins/designer-agent",
+      "description": "Design spec agent that converts Figma, images, or text requirements into purposeful UI/UX designs with ASCII wireframes and verified Mekari Pixel widget recommendations.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Iqbal"
+      },
+      "keywords": ["design", "ui", "ux", "pixel", "wireframe", "flutter", "figma"]
     }
   ]
 }

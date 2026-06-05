@@ -1,0 +1,8 @@
+{
+  "name": "feature-flag-cleanup",
+  "description": "Automated feature flag cleanup agent. Discovers flag usages, transforms conditional code (graduate or drop), cascades cleanup via static analysis, and updates tests/config/docs. Supports Dart, Kotlin, and Swift.",
+  "version": "1.0.0",
+  "author": { "name": "Iqbal" },
+  "license": "MIT",
+  "keywords": ["feature-flag", "cleanup", "refactoring", "flutter", "dart", "kotlin", "swift", "graduation", "retirement"]
+}

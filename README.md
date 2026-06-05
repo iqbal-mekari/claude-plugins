@@ -14,12 +14,14 @@ Internal plugin marketplace for Mekari Mobile team.
 |--------|-------------|
 | `patrol-qa-automation` | Patrol-based mobile UI test automation for Flutter apps |
 | `designer-agent` | Design spec agent — Figma/images/text to ASCII wireframes + verified Mekari Pixel widget recommendations |
+| `feature-flag-cleanup` | Automated feature flag cleanup — discover, transform, cascade, verify (Dart/Kotlin/Swift) |
 
 ## Install a Plugin
 
 ```
 /plugin install patrol-qa-automation@mekari-tools
 /plugin install designer-agent@mekari-tools
+/plugin install feature-flag-cleanup@mekari-tools
 ```
 
 ## Structure
@@ -34,6 +36,13 @@ plugins/
 │   ├── examples/
 │   └── ...
 ├── designer-agent/         ← Design spec agent (UI/UX + Pixel widgets)
+│   ├── .claude-plugin/
+│   │   └── plugin.json
+│   ├── agents/
+│   ├── skills/
+│   ├── examples/
+│   └── ...
+├── feature-flag-cleanup/   ← Automated feature flag cleanup
 │   ├── .claude-plugin/
 │   │   └── plugin.json
 │   ├── agents/

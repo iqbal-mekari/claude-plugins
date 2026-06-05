@@ -27,6 +27,12 @@ plugins/
     agents/                       ← Sub-agent definitions (pixel-specialist)
     skills/                       ← Skill definitions (design-ui, pixel-lookup)
     examples/                     ← Sample input/output design specs
+  feature-flag-cleanup/           ← Automated feature flag cleanup
+    .claude-plugin/plugin.json    ← Plugin metadata
+    AGENTS.md                     ← Agent/skill instructions
+    agents/                       ← Agent definitions (feature-flag-cleaner)
+    skills/                       ← Skill definitions (cleanup-feature-flag) + references
+    examples/                     ← Sample invocation and output
 ```
 
 When adding a new plugin: create `plugins/<name>/` with `.claude-plugin/plugin.json`, then register it in the root `.claude-plugin/marketplace.json`.
@@ -65,6 +71,26 @@ Design-to-spec agent that converts Figma, images, or text requirements into purp
 2. Design decisions with UX rationale
 3. Verified widget recommendation table (component, tier, variant, design tokens)
 4. UNRESOLVED elements list (if any)
+
+## Plugin Architecture: feature-flag-cleanup
+
+Automated feature flag lifecycle agent that removes flag checks and cleans up cascade artifacts across Dart/Flutter, Kotlin, and Swift codebases.
+
+**Agent:**
+- `feature-flag-cleaner` — User-invocable orchestrator. Runs the full 7-phase cleanup pipeline: discovery, code transformation, cascade cleanup (analyzer-driven iterative), config/registry cleanup, test cleanup, documentation cleanup, and verification with summary.
+
+**Skills:**
+- `cleanup-feature-flag` (`/cleanup-feature-flag`) — Main entry: collects flag name + action (graduate/drop) + repo path, then executes the complete pipeline.
+
+**Reference documents:**
+- `cleanup-patterns.md` — 10 transformation patterns with before/after examples (simple if/else, no-else, collection-if, entire file, nested conditions, early returns, ternary, variable assignments, Kotlin when, SwiftUI views) plus boolean simplification rules.
+
+**Key design decisions:**
+- One flag per cleanup run — never batch
+- Analyzer-driven cascade cleanup — iterates until static analysis reports zero new warnings
+- Pre-existing failure aware — establishes test baseline before cleanup to distinguish new vs old failures
+- Conservative on uncertainty — skips ambiguous transformations with TODO comments
+- Scope boundary — code transformation only; branching, committing, and PR creation is the user's responsibility
 
 ## Critical Rules
 
@@ -133,3 +159,6 @@ Agents must never proceed past gates 1 or 2 without explicit human approval. See
 - `skills/create-patrol-test/references/scenario_template.dart` — Scenario Dart template
 - `plugins/designer-agent/AGENTS.md` — Designer agent/skill details and anti-hallucination rules
 - `plugins/designer-agent/examples/sample_output.md` — Example design spec output format
+- `plugins/feature-flag-cleanup/AGENTS.md` — Feature flag cleanup agent/skill details
+- `plugins/feature-flag-cleanup/skills/cleanup-feature-flag/SKILL.md` — Cleanup workflow (7 phases)
+- `plugins/feature-flag-cleanup/skills/cleanup-feature-flag/references/cleanup-patterns.md` — 10 transformation patterns with examples

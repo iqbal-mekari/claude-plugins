@@ -2,13 +2,7 @@
 
 Internal plugin marketplace for Mekari Mobile team.
 
-## Install
-
-```
-/plugin marketplace add /Users/iqbal/projects/claude-plugins
-```
-
-Or from GitHub (once pushed):
+## Install Marketplace
 
 ```
 /plugin marketplace add iqbal-mekari/claude-plugins
@@ -24,4 +18,18 @@ Or from GitHub (once pushed):
 
 ```
 /plugin install patrol-qa-automation@mekari-tools
+```
+
+## Structure
+
+```
+plugins/
+├── patrol-qa-automation/   ← Patrol QA test automation
+│   ├── .claude-plugin/
+│   │   └── plugin.json
+│   ├── agents/
+│   ├── skills/
+│   ├── examples/
+│   └── ...
+└── <future-plugins>/       ← Add more plugins here
 ```

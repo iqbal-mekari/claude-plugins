@@ -8,11 +8,7 @@
   "plugins": [
     {
       "name": "patrol-qa-automation",
-      "source": {
-        "source": "github",
-        "repo": "iqbal-mekari/qa-agent-testcase-generator",
-        "ref": "main"
-      },
+      "source": "./plugins/patrol-qa-automation",
       "description": "Claude Code agents and skills for Patrol-based mobile UI test automation. Generate, author, and debug Patrol test files for Flutter apps.",
       "version": "1.0.0",
       "author": {

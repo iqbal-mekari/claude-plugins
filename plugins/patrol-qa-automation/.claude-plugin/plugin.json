@@ -1,0 +1,10 @@
+{
+  "name": "patrol-qa-automation",
+  "description": "Claude Code agents and skills for Patrol-based mobile UI test automation. Generate, author, and debug Patrol test files for Flutter apps.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Iqbal"
+  },
+  "license": "Apache-2.0",
+  "keywords": ["patrol", "flutter", "testing", "mobile", "ui-automation", "qa"]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "mekari-tools",
+  "owner": {
+    "name": "Mekari Mobile",
+    "email": "iqbal@mekari.com"
+  },
+  "description": "Internal Claude Code plugins for Mekari Mobile team",
+  "plugins": [
+    {
+      "name": "patrol-qa-automation",
+      "source": {
+        "source": "github",
+        "repo": "iqbal-mekari/qa-agent-testcase-generator",
+        "ref": "main"
+      },
+      "description": "Claude Code agents and skills for Patrol-based mobile UI test automation. Generate, author, and debug Patrol test files for Flutter apps.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Iqbal"
+      },
+      "keywords": ["patrol", "flutter", "testing", "mobile", "ui-automation", "qa"]
+    }
+  ]
+}

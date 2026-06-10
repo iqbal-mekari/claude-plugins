@@ -11,12 +11,6 @@ This plugin automates the removal of feature flags from codebases. It discovers 
 5. **Never go on a codebase-wide cleanup spree.** Only fix cascade warnings in files already touched or directly related to the flag removal.
 6. **Scope boundary — code transformation only.** Never create branches, commits, or PRs. That is the user's responsibility.
 
-## Agent Hierarchy
-
-| Agent | Role | Invocable |
-|-------|------|-----------|
-| `feature-flag-cleaner` | Orchestrates the full cleanup pipeline: discovery, transformation, cascade, config, tests, docs, verification | User-invocable |
-
 ## Skills
 
 | Skill | Invocation | Purpose |
@@ -39,6 +33,6 @@ This plugin automates the removal of feature flags from codebases. It discovers 
 
 ## Scope
 
-- **Code transformation only.** The agent removes flag checks and cleans up cascade artifacts. It does not create branches, commits, or PRs.
+- **Code transformation only.** The skill removes flag checks and cleans up cascade artifacts. It does not create branches, commits, or PRs.
 - **Runtime feature flags only.** Compile-time flags (`#if`, `#ifdef`) are out of scope.
 - **One flag at a time.** Each invocation handles exactly one flag.

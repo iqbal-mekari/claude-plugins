@@ -17,7 +17,7 @@ plugins/
     .claude-plugin/plugin.json    ← Plugin metadata
     .mcp.json                     ← MCP server config (Patrol MCP)
     AGENTS.md                     ← Agent/skill instructions (authoritative reference)
-    agents/                       ← Agent definitions (Tier 1 orchestrators + Tier 2 sub-agents)
+    agents/                       ← Agent definitions (orchestrators only)
     skills/                       ← Skill definitions + shared references
     examples/                     ← Sample CSV input/output with pipeline walkthrough
   designer-agent/                 ← Design spec agent (UI/UX + Pixel recommendations)
@@ -39,19 +39,21 @@ When adding a new plugin: create `plugins/<name>/` with `.claude-plugin/plugin.j
 
 ## Plugin Architecture: patrol-qa-automation
 
-Three-tier agent system for Patrol-based Flutter mobile UI test automation:
+Two-agent system with skill-based workers for Patrol-based Flutter mobile UI test automation:
 
-**Tier 1 — User-invocable orchestrators:**
-- `qa-test-case-generator` — Generates test cases from Jira/PRD/Figma/text requirements
+**Agents (user-invocable orchestrators):**
 - `patrol-test-creator` — Takes CSV test cases, orchestrates Patrol Dart file production
 - `patrol-test-debugger` — Autonomous debugging loop for failing Patrol tests
 
-**Tier 2 — Sub-agents (spawned by orchestrators only, never invoked directly):**
-- `patrol-testcase-writer` — Writes one atomic testcase Dart file
-- `patrol-scenario-composer` — Composes scenario Dart from testcase files
-- `patrol-selector-debugger` — Diagnoses/fixes one failing selector
-
-**Skills** (invoked by agents as needed): `create-patrol-test`, `create-test-cases`, `debug-patrol-test`, `impact-analysis`, `regenerate-test-cases`
+**Skills** (invocable directly or by agents):
+- `create-patrol-test` — Authoritative rules for Patrol test creation
+- `create-patrol-testcase` — Writes one atomic testcase Dart file
+- `compose-patrol-scenario` — Composes scenario Dart from testcase files
+- `debug-patrol-test` — Debug workflow for failing Patrol tests
+- `debug-patrol-selector` — Diagnoses/fixes one failing selector
+- `create-test-cases` — Generates new mobile UI test cases (includes Gate 1)
+- `regenerate-test-cases` — Updates test cases from code diffs/PRs (includes Gate 1)
+- `impact-analysis` — Identifies impacted modules & test cases from PR/branch diffs (includes Gate 1)
 
 ## Plugin Architecture: designer-agent
 
@@ -99,7 +101,7 @@ Automated feature flag lifecycle agent that removes flag checks and cleans up ca
 3. **Never hardcode credentials** — use function parameters or test setup.
 4. **Never use pixel coordinates** as Patrol selectors.
 5. **Patrol MCP is a test runner, not a device driver.** Write complete Dart test files, then run them. Edit → run → observe → edit again.
-6. **Sub-agents are not user-invocable.** Only orchestrators may spawn them.
+6. **Skills can be invoked directly or by agents.** Agents orchestrate; skills execute.
 
 ## Patrol Selector Priority (highest to lowest)
 

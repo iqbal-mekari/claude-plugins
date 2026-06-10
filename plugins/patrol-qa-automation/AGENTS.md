@@ -9,25 +9,23 @@ This workspace contains VS Code Copilot **agent definitions** and **skills** for
 3. **Never hardcode credentials.** Always use function parameters or test setup.
 4. **Never use pixel coordinates** as a Patrol selector — they are brittle.
 5. **Patrol MCP is a test runner, not a device driver.** You cannot tap/type/scroll via MCP — write complete Dart test files, then run them. The debugging loop is: edit file → run → observe → edit again.
-6. **Sub-agents are not user-invocable.** `patrol-testcase-writer`, `patrol-scenario-composer`, and `patrol-selector-debugger` are spawned by orchestrators only.
 
 ## Agents
 
 | Agent | Role | User-invocable |
 |---|---|---|
-| `qa-test-case-generator` | Generates mobile UI test cases from Jira/PRD/Figma | ✅ |
 | `patrol-test-creator` | Orchestrates full Patrol test production from a CSV | ✅ |
 | `patrol-test-debugger` | Autonomous loop to debug failing Patrol tests | ✅ |
-| `patrol-testcase-writer` | Writes one atomic testcase Dart file | sub-agent |
-| `patrol-scenario-composer` | Composes scenario Dart file from testcases | sub-agent |
-| `patrol-selector-debugger` | Diagnoses and fixes one failing selector | sub-agent |
 
 ## Skills
 
 | Skill | When to invoke |
 |---|---|
-| [`create-patrol-test`](skills/create-patrol-test/SKILL.md) | Writing Patrol testcase or scenario Dart files |
+| [`create-patrol-test`](skills/create-patrol-test/SKILL.md) | Writing Patrol testcase or scenario Dart files (authoritative rules) |
+| [`create-patrol-testcase`](skills/create-patrol-testcase/SKILL.md) | Writing a single atomic Patrol testcase Dart file |
+| [`compose-patrol-scenario`](skills/compose-patrol-scenario/SKILL.md) | Composing a Patrol scenario Dart from testcase files |
 | [`debug-patrol-test`](skills/debug-patrol-test/SKILL.md) | Debugging a failing Patrol test |
+| [`debug-patrol-selector`](skills/debug-patrol-selector/SKILL.md) | Diagnosing and fixing a single failing Patrol selector |
 | [`create-test-cases`](skills/create-test-cases/SKILL.md) | Generating new mobile UI test cases |
 | [`regenerate-test-cases`](skills/regenerate-test-cases/SKILL.md) | Updating test cases from code diffs or PRs |
 | [`impact-analysis`](skills/impact-analysis/SKILL.md) | Identifying impacted modules & test cases from PR/branch diffs via tomo_search |
@@ -75,12 +73,12 @@ patrol_test/
 
 The pipeline enforces **mandatory human approval checkpoints** for gates 1 and 2. See [human-in-the-loop.md](skills/shared-references/human-in-the-loop.md) for full details.
 
-| Gate | Between | What's reviewed |
-|------|---------|-----------------|
-| Gate 1 | Test case generation → Patrol scripting | Generated CSV completeness & correctness |
-| Gate 2 | Mapping table → Dart file writing | Triage decisions (automate/skip/setup) |
+| Gate | Between | What's reviewed | Enforced by |
+|------|---------|-----------------|-------------|
+| Gate 1 | Test case generation → Patrol scripting | Generated CSV completeness & correctness | `create-test-cases`, `regenerate-test-cases`, `impact-analysis` skills |
+| Gate 2 | Mapping table → Dart file writing | Triage decisions (automate/skip/setup) | `patrol-test-creator` agent |
 
-**Rule:** Agents must never proceed past gates 1 or 2 without explicit human approval.
+**Rule:** Agents and skills must never proceed past gates 1 or 2 without explicit human approval.
 
 After test file generation, execution starts automatically.
 

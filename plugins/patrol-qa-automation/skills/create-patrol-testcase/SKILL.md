@@ -1,26 +1,19 @@
 ---
-name: patrol-testcase-writer
+name: create-patrol-testcase
 description: >
-  Specialist sub-agent that writes a single atomic Patrol testcase
-  Dart file for Flutter mobile apps. Invoked by patrol-test-creator
-  with a confirmed test case, target screen folder, and output file
-  name. Handles selector discovery (native tree + screen source),
-  localization mapping, Dart authoring, syntax validation, and
-  test execution via Patrol MCP. DO NOT invoke directly for planning
-  or triage — use patrol-test-creator instead.
-tools: [read, edit, search, 'patrol-mcp/*']
-user-invocable: false
-argument-hint: >
-  Provide: test case title, steps, expected result, target screen
-  folder (e.g. testcases/login/), and output filename
-  (e.g. tap_login_button.dart).
+  Write a single atomic Patrol testcase Dart file for Flutter mobile apps.
+  Handles selector discovery (native tree + screen source), localization
+  mapping, Dart authoring, syntax validation, and test execution via Patrol
+  MCP. Invoke when a confirmed test case needs to be written as a Patrol
+  testcase. For planning, triage, or mapping — use patrol-test-creator agent.
+  Trigger: write testcase, create testcase dart, write patrol testcase,
+  generate testcase file.
 ---
 
-# Patrol Testcase Writer Agent
+# Create Patrol Testcase Skill
 
-You are a specialist at writing a single atomic Patrol testcase Dart
-file. You receive a pre-triaged test case from the orchestrating agent
-and produce a validated, saved Dart file.
+Writes a single atomic Patrol testcase Dart file. Receives a pre-triaged
+test case and produces a validated, saved Dart file.
 
 Read and follow ALL rules in the skill document before starting:
 
@@ -67,7 +60,7 @@ Run both in parallel:
    element tree with text, identifiers, and bounds.
 
 Apply the selector priority hierarchy — see
-[shared-references/selector-rules.md](../../skills/shared-references/selector-rules.md)
+[shared-references/selector-rules.md](../shared-references/selector-rules.md)
 for the full decision tree:
 
 1. Text finder (`$('Login')`)

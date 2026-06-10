@@ -314,6 +314,23 @@ it receives a focused list of:
 - Which new test cases to create (with scope context)
 - Which test cases to remove (with deletion evidence)
 
+## Human-in-the-Loop Gate (GATE 1)
+
+After producing the impact analysis JSON, **always present a summary
+and wait for explicit human approval** before considering the task
+complete or piping output into `regenerate-test-cases`.
+
+**Required behavior:**
+1. Present: impact summary (total impacted scopes, affected test cases,
+   recommended actions breakdown).
+2. Ask the user: _"Impact analysis is ready. Would you like me to
+   regenerate the affected test cases, make changes, or stop here?"_
+3. **Wait for explicit confirmation** before any next step.
+4. Only pipe into `regenerate-test-cases` if the user explicitly approves.
+
+See [human-in-the-loop.md](../shared-references/human-in-the-loop.md)
+for the full pipeline gate specification.
+
 ## Error Handling
 
 | Scenario | Action |

@@ -7,13 +7,12 @@ description: >
   assertion fails, or a selector breaks. Runs the failing test,
   captures screenshot and native tree, diagnoses root cause, applies
   fixes to the Dart file, re-runs to verify, and records new failure
-  patterns in the knowledge base. Can spawn sub-agents for deep
+  patterns in the knowledge base. Invokes skills for deep
   selector diagnosis, testcase rewriting, or scenario recomposition.
   Trigger phrases: "debug patrol", "patrol fails", "patrol error",
   "element not found", "test failed", "fix patrol test",
   "patrol assertion failed", "patrol broken".
-tools: [read, edit, search, agent, 'patrol-mcp/*', todo]
-agents: [patrol-selector-debugger, patrol-testcase-writer, patrol-scenario-composer]
+tools: [read, edit, search, 'patrol-mcp/*', todo]
 argument-hint: >
   Provide the path to the failing Dart test file. Error message and
   platform (android/ios) are optional but helpful.
@@ -35,10 +34,10 @@ skills/debug-patrol-test/SKILL.md
 ## Scope
 
 - Diagnose and fix any failing Patrol testcase or scenario Dart file.
-- Delegate deep selector diagnosis to `patrol-selector-debugger`.
-- Delegate full testcase rewrites to `patrol-testcase-writer` when
-  a testcase needs to be rebuilt after a fix.
-- Delegate scenario recomposition to `patrol-scenario-composer`
+- Delegate deep selector diagnosis to `debug-patrol-selector` skill.
+- Delegate full testcase rewrites to `create-patrol-testcase` skill
+  when a testcase needs to be rebuilt after a fix.
+- Delegate scenario recomposition to `compose-patrol-scenario` skill
   when a scenario structure must change.
 - Record any new failure pattern discovered in
   `skills/debug-patrol-test/references/failure-patterns.md`.
@@ -99,11 +98,11 @@ Run all three in parallel:
 7. **Match to a known failure pattern** in
    `skills/debug-patrol-test/references/failure-patterns.md`.
 
-8. **Delegate to `patrol-selector-debugger`** if:
+8. **Delegate to `debug-patrol-selector` skill** if:
    - The failing code is a finder, `expect()`, or `.tap()` selector
      issue.
    - Provide: failing Dart snippet, testcase file path, error message.
-   - Apply the confirmed fix returned by the sub-agent.
+   - Apply the confirmed fix returned by the skill.
 
 ### Phase 4 — Apply Fix and Verify
 
@@ -111,9 +110,9 @@ Run all three in parallel:
    - Fix testcases in their testcase file.
    - Fix scenario-level issues in the scenario file.
    - If the testcase must be fully rewritten, delegate to
-     `patrol-testcase-writer`.
+     `create-patrol-testcase` skill.
    - If the scenario structure must change, delegate to
-     `patrol-scenario-composer`.
+     `compose-patrol-scenario` skill.
 
 10. **Re-run the test** via `mcp_patrol_mcp_run` to confirm the
     fix works. If it still fails, go back to Phase 2 with the new
@@ -153,6 +152,6 @@ After a successful fix, present:
 - **Fix applied**: the before/after Dart diff
 - **Pattern match**: which failure pattern it matched (or "new —
   added as pattern #N")
-- **Sub-agents used**: which sub-agents were invoked and why
+- **Skills used**: which skills were invoked and why
 - **Semantics changes needed**: any Flutter code changes required
   before the test will pass permanently

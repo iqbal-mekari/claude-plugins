@@ -9,8 +9,7 @@ description: >
   "UI test", "test automation", "test script", "test scenario",
   "testcase", "automate", "CSV test cases", "Patrol test",
   "create Patrol tests", "generate patrol", "automate UI".
-tools: [execute, read, agent, edit, search, 'patrol-mcp/*', todo]
-agents: [patrol-testcase-writer, patrol-scenario-composer, patrol-selector-debugger]
+tools: [execute, read, edit, search, 'patrol-mcp/*', todo]
 argument-hint: >
   Provide the path to your test case file (CSV, plain text) and
   optionally the target feature or screen name.
@@ -123,20 +122,20 @@ For each confirmed testcase, gather selector context:
 ### Step 7 — Write testcases
 
 For each ✅ case in confirmed order, invoke the
-`patrol-testcase-writer` sub-agent with:
+`create-patrol-testcase` skill with:
 
 - Test case title, steps, and expected result
 - Target screen folder (e.g. `testcases/login/`)
 - Output filename (e.g. `tap_login_button.dart`)
 - Any required function parameters from triage
 
-Collect the saved file path from each sub-agent response before
+Collect the saved file path from each skill response before
 proceeding to the next.
 
 ### Step 8 — Write the scenario
 
 Once all testcases are confirmed saved, invoke the
-`patrol-scenario-composer` sub-agent with:
+`compose-patrol-scenario` skill with:
 
 - Feature name
 - Ordered list of saved testcase file paths
@@ -147,13 +146,13 @@ Once all testcases are confirmed saved, invoke the
 ## Debugging Failures
 
 When a testcase or scenario step fails due to a selector issue,
-invoke the `patrol-selector-debugger` sub-agent with:
+invoke the `debug-patrol-selector` skill with:
 
 - The failing Dart code snippet
 - The testcase file path
 - The error or failure description
 
-Apply the fix returned by the sub-agent to the relevant Dart file
+Apply the fix returned by the skill to the relevant Dart file
 before re-running.
 
 ## Output Summary

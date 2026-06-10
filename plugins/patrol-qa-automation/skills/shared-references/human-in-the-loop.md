@@ -12,7 +12,7 @@ This document defines the explicit approval checkpoints where a human must confi
 │                                                                         │
 │  Input: PRD / Jira ticket / Figma / Codebase / Existing CSV             │
 │       ↓                                                                 │
-│  Agent: qa-test-case-generator                                          │
+│  Skill: create-test-cases / regenerate-test-cases / impact-analysis     │
 │       ↓                                                                 │
 │  Output: CSV in /test-cases/ + Jira comment                             │
 │                                                                         │
@@ -57,9 +57,9 @@ This document defines the explicit approval checkpoints where a human must confi
 │  Phase 3: Patrol Test Generation                                        │
 │  ─────────────────────────────────────────────────────────────────────  │
 │                                                                         │
-│  Agent: patrol-test-creator → delegates to:                             │
-│    • patrol-testcase-writer (per testcase)                              │
-│    • patrol-scenario-composer (per scenario)                            │
+│  Agent: patrol-test-creator → invokes:                                  │
+│    • create-patrol-testcase skill (per testcase)                        │
+│    • compose-patrol-scenario skill (per scenario)                       │
 │       ↓                                                                 │
 │  Output: Dart files in patrol_test/testcases/ and patrol_test/scenarios/ │
 │                                                                         │
@@ -85,7 +85,7 @@ This document defines the explicit approval checkpoints where a human must confi
 
 ### Gate 1: Test Case Approval
 
-**When:** After `qa-test-case-generator` produces the CSV output.
+**When:** After `create-test-cases`, `regenerate-test-cases`, or `impact-analysis` skill produces output.
 
 **What the human reviews:**
 - Completeness — are all features/requirements covered?
@@ -93,7 +93,7 @@ This document defines the explicit approval checkpoints where a human must confi
 - Priority — are Smoke vs Regression categories correct?
 - Scope — no out-of-scope API/backend test cases?
 
-**Agent behavior:**
+**Skill behavior:**
 1. Present the generated test cases summary (count by category, coverage map).
 2. Explicitly ask: _"Please review the test cases in `{csv_path}`. Shall I proceed to Patrol test creation, or would you like changes?"_
 3. Wait for user response before proceeding.
@@ -121,10 +121,10 @@ This document defines the explicit approval checkpoints where a human must confi
 
 ---
 
-## Implementation Rules for Agents
+## Implementation Rules for Agents and Skills
 
-1. **Never skip gates 1 and 2.** Those gates are mandatory — agents must pause and wait for human input.
+1. **Never skip gates 1 and 2.** Those gates are mandatory — agents and skills must pause and wait for human input.
 2. **Present context.** Always show enough information at the gate for the human to make an informed decision (file paths, counts, key decisions made).
-3. **No silent progression.** An agent must not proceed from Phase 1 to Phase 2 or Phase 2 to Phase 3 without the human explicitly saying "proceed", "confirm", "yes", or equivalent.
-4. **Loop on edits.** If the human requests changes at gates 1 or 2, the agent applies them and re-presents for approval at the same gate.
+3. **No silent progression.** An agent or skill must not proceed from Phase 1 to Phase 2 or Phase 2 to Phase 3 without the human explicitly saying "proceed", "confirm", "yes", or equivalent.
+4. **Loop on edits.** If the human requests changes at gates 1 or 2, the agent/skill applies them and re-presents for approval at the same gate.
 5. **Record decisions.** After each gate approval, log the decision (what was approved and any modifications requested) in the session context for traceability.

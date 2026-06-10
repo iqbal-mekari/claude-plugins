@@ -232,6 +232,25 @@ Before running this skill, verify:
 3. **Clear base reference** — Know which branch/commit represents the
    "before" state.
 
+## Human-in-the-Loop Gate (GATE 1)
+
+After generating updated test cases, **always present a summary and
+wait for explicit human approval** before considering the task complete
+or passing output to downstream skills (e.g., patrol-test-creator).
+
+**Required behavior:**
+1. Present: delta summary (NEW/MODIFIED/REMOVED counts), coverage areas,
+   and the updated CSV file path.
+2. Ask the user: _"Updated test cases are ready for review at `{csv_path}`.
+   Would you like me to proceed to Patrol test generation, make
+   changes, or stop here?"_
+3. **Wait for explicit confirmation** before any next step.
+4. If the user requests changes, apply them and re-present.
+5. Only proceed to Patrol automation if the user explicitly approves.
+
+See [human-in-the-loop.md](../shared-references/human-in-the-loop.md)
+for the full pipeline gate specification.
+
 ## Edge Cases
 
 - **No existing CSV found:** Inform user and suggest running

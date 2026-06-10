@@ -1,26 +1,20 @@
 ---
-name: patrol-scenario-composer
+name: compose-patrol-scenario
 description: >
-  Specialist sub-agent that composes a Patrol scenario Dart file
-  from a confirmed list of testcase files for Flutter mobile apps.
-  Invoked by patrol-test-creator after all testcase Dart files are
-  saved. Handles imports, helper function orchestration, state reset
-  between independent error paths, and end-to-end validation via
-  Patrol MCP. DO NOT invoke for planning, triage, or testcase
-  authoring — use patrol-test-creator instead.
-tools: [read, edit, search, 'patrol-mcp/*']
-user-invocable: false
-argument-hint: >
-  Provide: feature name, ordered list of testcase file paths,
-  helpers to use (e.g. login.dart, logout.dart), output scenario
-  path (e.g. scenarios/login/login_full_journey.dart).
+  Compose a Patrol scenario Dart file from a confirmed list of testcase
+  files for Flutter mobile apps. Handles imports, helper function
+  orchestration, state reset between independent error paths, and
+  end-to-end validation via Patrol MCP. Invoke after all testcase Dart
+  files are saved. For planning, triage, or testcase authoring — use
+  patrol-test-creator agent.
+  Trigger: compose scenario, create scenario dart, write patrol scenario,
+  generate scenario file, assemble scenario.
 ---
 
-# Patrol Scenario Composer Agent
+# Compose Patrol Scenario Skill
 
-You are a specialist at composing Patrol scenario Dart files that
-orchestrate atomic testcases into end-to-end user journeys for Flutter
-mobile apps.
+Composes a Patrol scenario Dart file that orchestrates atomic testcases
+into end-to-end user journeys for Flutter mobile apps.
 
 Read and follow ALL rules in the skill document before starting:
 

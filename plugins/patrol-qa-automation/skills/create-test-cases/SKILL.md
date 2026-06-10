@@ -237,6 +237,25 @@ When Figma designs are available:
 | P1 | Important UX, secondary features, non-blocking validation |
 | P2 | Cosmetic, extreme edge cases, nice-to-have behaviors |
 
+## Human-in-the-Loop Gate (GATE 1)
+
+After generating test cases, **always present a summary and wait for
+explicit human approval** before considering the task complete or
+passing output to downstream skills (e.g., patrol-test-creator).
+
+**Required behavior:**
+1. Present: total test case count, breakdown by category (Smoke/Regression),
+   coverage areas, and the CSV file path.
+2. Ask the user: _"Test cases are ready for review at `{csv_path}`.
+   Would you like me to proceed to Patrol test generation, make
+   changes, or stop here?"_
+3. **Wait for explicit confirmation** before any next step.
+4. If the user requests changes, apply them and re-present.
+5. Only proceed to Patrol automation if the user explicitly approves.
+
+See [human-in-the-loop.md](../shared-references/human-in-the-loop.md)
+for the full pipeline gate specification.
+
 ## Post-Generation Checklist
 
 - [ ] Every acceptance criterion has at least one TC

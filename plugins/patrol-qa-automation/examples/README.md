@@ -6,7 +6,7 @@ This directory contains sample artifacts illustrating the pipeline's input/outpu
 
 | File | Description |
 |------|-------------|
-| `sample_input_test_cases.csv` | Example CSV output from `qa-test-case-generator` (Gate 1 output) |
+| `sample_input_test_cases.csv` | Example CSV output from `create-test-cases` skill (Gate 1 output) |
 | `sample_output_testcase.dart` | Example Patrol atomic testcase Dart file (Phase 3 output) |
 | `sample_output_scenario.dart` | Example Patrol scenario Dart file orchestrating testcases (Phase 3 output) |
 
@@ -15,7 +15,7 @@ This directory contains sample artifacts illustrating the pipeline's input/outpu
 ```
 1. User provides: Jira ticket QON-1234 (Login feature)
        ↓
-2. qa-test-case-generator → sample_input_test_cases.csv
+2. create-test-cases skill → sample_input_test_cases.csv
        ↓
 3. 🚦 GATE 1: Human reviews CSV, approves
        ↓
@@ -23,8 +23,8 @@ This directory contains sample artifacts illustrating the pipeline's input/outpu
        ↓
 5. 🚦 GATE 2: Human confirms mapping table
        ↓
-6. patrol-testcase-writer → sample_output_testcase.dart (×N files)
-   patrol-scenario-composer → sample_output_scenario.dart
+6. create-patrol-testcase skill → sample_output_testcase.dart (×N files)
+   compose-patrol-scenario skill → sample_output_scenario.dart
        ↓
 7. Test files are generated and execution starts automatically
        ↓

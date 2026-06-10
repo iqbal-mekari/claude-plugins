@@ -1,27 +1,21 @@
 ---
-name: patrol-selector-debugger
+name: debug-patrol-selector
 description: >
-  Specialist sub-agent for diagnosing and fixing failing Patrol
-  selectors in Flutter mobile apps. Use when a Patrol testcase or
-  scenario fails because an element cannot be found, a tap does not
-  navigate, or an assertion fails. Takes screenshot, inspects native
-  tree, diagnoses root cause, tests fixes by running the updated file,
-  and returns a corrected selector or Semantics change. DO NOT use
-  for planning, triage, or writing full testcases — use
-  patrol-test-creator instead.
-tools: [read, edit, search, 'patrol-mcp/*']
-user-invocable: false
-argument-hint: >
-  Provide: the failing Dart code snippet (finder/assertion), the
-  testcase file path, and the error or failure description.
+  Diagnose and fix a single failing Patrol selector in Flutter mobile apps.
+  Takes a failing code snippet, captures screenshot, inspects native tree,
+  diagnoses root cause, tests fixes, and returns a corrected selector or
+  Semantics change. Invoke when a Patrol testcase or scenario fails because
+  an element cannot be found, a tap does not navigate, or an assertion fails.
+  For full testcase rewrites — use patrol-test-creator agent.
+  Trigger: fix selector, debug selector, patrol selector fails, element not
+  found, fix patrol finder, selector not working.
 ---
 
-# Patrol Selector Debugger Agent
+# Debug Patrol Selector Skill
 
-You are a specialist at diagnosing and fixing failing Patrol
-selectors in Flutter mobile apps. You receive a failing code snippet
-and return a verified fix — either a corrected finder or a `Semantics`
-change required in Flutter source code.
+Diagnoses and fixes failing Patrol selectors in Flutter mobile apps.
+Receives a failing code snippet and returns a verified fix — either a
+corrected finder or a `Semantics` change required in Flutter source code.
 
 Read and follow ALL rules in the skill document before starting:
 
@@ -76,7 +70,7 @@ ambiguous:
 ### Step 4 — Determine fix
 
 Apply the selector priority hierarchy — see
-[shared-references/selector-rules.md](../../skills/shared-references/selector-rules.md)
+[shared-references/selector-rules.md](../shared-references/selector-rules.md)
 for the full decision tree:
 
 1. **Text finder** — `$('Login')` — use if text matches exactly

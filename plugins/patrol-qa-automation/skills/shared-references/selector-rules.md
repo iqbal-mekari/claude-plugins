@@ -6,7 +6,7 @@ This is the single source of truth for Patrol selector strategies across all ski
 
 Before writing any selector, gather context from:
 
-1. **Live UI tree** — `mcp_patrol_mcp_native-tree` for runtime element identifiers/text/states
+1. **Live UI tree** — use the view hierarchy CLI command (`adb shell uiautomator dump` for Android, `idb ui describe-all` for iOS) for runtime element identifiers/text/states. See [cli-commands.md](cli-commands.md) for full commands.
 2. **Screen source code** — Read Flutter screen file for widget keys (`Key('...')`), `Semantics(identifier: '...')`, and stable string constants
 
 Then follow this priority order:
@@ -98,7 +98,7 @@ await $('Field label Field value').waitUntilVisible();
 await $(#sectionContainer).$('Section heading').tap();
 ```
 
-**Detection:** Use `mcp_patrol_mcp_native-tree` and check the element's `text` or `label` field. If it contains a route prefix or extra content, use ancestor chaining or `containing` to disambiguate.
+**Detection:** Use the view hierarchy CLI command (see [cli-commands.md](cli-commands.md)) and check the element's `text` or `label` field. If it contains a route prefix or extra content, use ancestor chaining or `containing` to disambiguate.
 
 ---
 

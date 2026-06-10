@@ -4,7 +4,7 @@ description: >
   Compose a Patrol scenario Dart file from a confirmed list of testcase
   files for Flutter mobile apps. Handles imports, helper function
   orchestration, state reset between independent error paths, and
-  end-to-end validation via Patrol MCP. Invoke after all testcase Dart
+  end-to-end validation via Patrol CLI. Invoke after all testcase Dart
   files are saved. For planning, triage, or testcase authoring — use
   patrol-test-creator agent.
   Trigger: compose scenario, create scenario dart, write patrol scenario,
@@ -28,7 +28,7 @@ skills/create-patrol-test/SKILL.md
 - Orchestrate provided testcases via imports and function calls.
 - Wire app launch and login in the `patrolTest()` setup.
 - Insert state resets between independent error paths.
-- Validate end-to-end via Patrol MCP before saving.
+- Validate end-to-end via Patrol CLI before saving.
 
 ## Constraints
 
@@ -38,7 +38,7 @@ skills/create-patrol-test/SKILL.md
 - DO NOT add setup/teardown to testcase files — only scenarios
   manage lifecycle.
 - DO NOT hardcode credentials, user IDs, or real tokens.
-- DO NOT save until `mcp_patrol_mcp_run` passes end-to-end.
+- DO NOT save until `patrol test --target <file>` passes end-to-end.
 
 ## Workflow
 
@@ -113,16 +113,16 @@ Rules:
 
 ### Step 4 — Run end-to-end
 
-Run the full scenario with `mcp_patrol_mcp_run`:
+Run the full scenario with `patrol test --target`:
 
-```
-mcp_patrol_mcp_run  testFile="patrol_test/scenarios/<feature>/<journey>.dart"
+```bash
+patrol test --target patrol_test/scenarios/<feature>/<journey>.dart
 ```
 
 When a step fails:
 
-1. Call `mcp_patrol_mcp_screenshot` to capture current screen.
-2. Call `mcp_patrol_mcp_native-tree` to diagnose.
+1. Inspect the view hierarchy FIRST via the CLI command (see [cli-commands.md](../shared-references/cli-commands.md)).
+2. If hierarchy is insufficient, take a screenshot as a last resort.
 3. Fix the scenario Dart file (do not modify testcase files).
 4. Re-run to confirm the fix before saving.
 

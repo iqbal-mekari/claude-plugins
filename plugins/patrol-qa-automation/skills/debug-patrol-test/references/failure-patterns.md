@@ -17,7 +17,7 @@ Catalog of known failure root causes and their fixes. Derived from real debuggin
 
 **Diagnosis:**
 
-1. Run `mcp_patrol_mcp_native-tree` — find the element's bounds
+1. Run the view hierarchy dump command (see [cli-commands.md](../../shared-references/cli-commands.md)) — find the element's bounds
 2. Compare to the `Offset(x, y)` — check if the tap position matches the element center
 3. Off by more than ~10px → replace with a text/key selector
 
@@ -218,7 +218,7 @@ await $('Save').tap();
 **Error:** `findsNothing` on iOS for a selector that works on Android.  
 **Root cause:** Flutter renders differently on iOS vs Android. The accessibility tree structure, text values, and node grouping can differ between platforms even for the same Flutter widget.
 
-**Diagnosis:** Run `mcp_patrol_mcp_native-tree` on both platforms and compare. Look for:
+**Diagnosis:** Run the view hierarchy dump on both platforms and compare (see [cli-commands.md](../../shared-references/cli-commands.md)). Look for:
 
 - Different text values (e.g. Android: `"Submit"` / iOS: `"Submit button"`)
 - Different node grouping (merged vs split nodes)
@@ -245,7 +245,7 @@ Semantics(
 **Error:** `findsNothing` when using `Key` selector on iOS.  
 **Root cause:** `resource-id` is an Android-only attribute. On iOS, the equivalent is `accessibilityIdentifier` — which is only set when `Semantics(identifier: '...')` is applied to the Flutter widget.
 
-**Diagnosis:** Run `mcp_patrol_mcp_native-tree` on iOS — identifiers will be empty for all Flutter-rendered elements unless `Semantics(identifier:)` is present.
+**Diagnosis:** Run the view hierarchy dump on iOS (see [cli-commands.md](../../shared-references/cli-commands.md)) — identifiers will be empty for all Flutter-rendered elements unless `Semantics(identifier:)` is present.
 
 **Fix:** If both platforms need key-based selectors, the Flutter widget MUST have:
 

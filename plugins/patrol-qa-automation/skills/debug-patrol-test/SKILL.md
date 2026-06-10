@@ -6,7 +6,7 @@ argument-hint: 'Provide the path to the failing Dart test file and the error mes
 
 # Debug Patrol Test
 
-Diagnose and fix failing Patrol test files for Android/iOS mobile apps. Follows a **read → run → screenshot → native-tree → fix → re-run** loop.
+Diagnose and fix failing Patrol test files for Android/iOS mobile apps. Follows a **read → run → native-tree → fix → re-run** loop. Screenshots are a last resort when hierarchy inspection is insufficient.
 
 ## When to Use
 
@@ -19,7 +19,7 @@ Diagnose and fix failing Patrol test files for Android/iOS mobile apps. Follows 
 
 ## Prerequisites
 
-- Patrol MCP tools are running (`mcp_patrol_mcp_status` shows a connected device)
+- Patrol CLI and platform tools are available (`patrol devices` shows a connected device)
 - The Dart test file path is known
 
 ---
@@ -30,37 +30,45 @@ Diagnose and fix failing Patrol test files for Android/iOS mobile apps. Follows 
 
 1. **Read the failing Dart test file** — understand the full test: imports, helper calls, selectors, assertions
 2. **Read all imported helper files** — understand the complete execution path
-3. **Check session status** — confirm the device is connected via `mcp_patrol_mcp_status`
+3. **Check device status** — confirm the device is connected via `patrol devices`
 
 ### Phase 2 — Reproduce the Failure
 
-4. **Run the test** via MCP:
+4. **Run the test** via CLI:
 
-   ```
-   mcp_patrol_mcp_run  testFile="patrol_test/testcases/login/verify_login_form_visible.dart"
+   ```bash
+   patrol test --target patrol_test/testcases/login/verify_login_form_visible.dart
    ```
 
    Capture the exact error: which assertion/action failed and the error message.
 
-5. **Take a screenshot immediately after the run** — the emulator/simulator stays on the screen where the test stopped. This is your primary debugging context.
-
-   ```
-   mcp_patrol_mcp_screenshot
-   ```
-
 ### Phase 3 — Diagnose
 
-6. **Inspect the native view hierarchy**:
+5. **Inspect the native view hierarchy FIRST** (PRIMARY debugging tool):
 
+   ```bash
+   # Android
+   adb shell uiautomator dump /sdcard/window_dump.xml && adb pull /sdcard/window_dump.xml /tmp/window_dump.xml && cat /tmp/window_dump.xml
+   # iOS
+   idb ui describe-all
    ```
-   mcp_patrol_mcp_native-tree
-   ```
+
+   See [cli-commands.md](../shared-references/cli-commands.md) for full commands.
 
    Look for:
    - The actual `text` or `label` value of the target element (never assume from screenshot)
    - Whether a dialog/overlay is blocking the target element
    - Whether the element exists but has different text than expected (hint text, concatenated values)
    - The `identifier` or `resourceName` if no stable text is available
+
+6. **If hierarchy is insufficient, take a screenshot** (LAST RESORT):
+
+   ```bash
+   # Android
+   adb shell screencap -p /sdcard/screenshot.png && adb pull /sdcard/screenshot.png /tmp/screenshot.png
+   # iOS
+   xcrun simctl io booted screenshot /tmp/screenshot.png
+   ```
 
 7. **Identify the root cause** using the [Common Failure Patterns](./references/failure-patterns.md) table.
 
@@ -69,13 +77,13 @@ Diagnose and fix failing Patrol test files for Android/iOS mobile apps. Follows 
 8. **Edit the Dart test file** with the proposed fix.
 
 9. **Run the test again** to validate:
-   ```
-   mcp_patrol_mcp_run  testFile="patrol_test/testcases/login/verify_login_form_visible.dart"
+   ```bash
+   patrol test --target patrol_test/testcases/login/verify_login_form_visible.dart
    ```
 
-10. **Check pass/fail** via `mcp_patrol_mcp_status`.
+10. **Check pass/fail** via `patrol devices`.
 
-11. If still failing, take a new screenshot and native-tree, then repeat from Phase 3.
+11. If still failing, inspect the view hierarchy again, then repeat from Phase 3.
 
 ### Phase 5 — Record Unrecognized Failure Patterns
 
@@ -146,7 +154,7 @@ native-tree element has text content (non-empty)?
 
 ## Key Rules (from create-patrol-test skill)
 
-- **Patrol MCP cannot run inline Dart code** — Always write the complete test file, then run it. Use the write-run-observe-edit loop.
+- **Patrol CLI cannot run inline Dart code** — Always write the complete test file, then run it. Use the write-run-observe-edit loop.
 - **`$('text')` matches by text content** — Use `Key`-based selectors for elements without stable text.
 - **Never use coordinates** — `$.native.tap(Offset(x,y))` breaks across screen sizes/densities.
 - **Rebuild required after Flutter code changes** — `Semantics` additions are not reflected until you rebuild and reinstall the app.
@@ -157,12 +165,12 @@ native-tree element has text content (non-empty)?
 ## Tool Sequence (copy-paste reference)
 
 ```
-1. mcp_patrol_mcp_status                    → check session state, get device info
-2. mcp_patrol_mcp_run(test_file)            → run failing test, get error
-3. mcp_patrol_mcp_screenshot                → see where test stopped
-4. mcp_patrol_mcp_native-tree               → get actual text/identifier values
+1. patrol devices                                    → check connected device
+2. patrol test --target <test_file>                  → run failing test, get error
+3. adb shell uiautomator dump / idb ui describe-all → get actual text/identifier values (PRIMARY)
+4. adb shell screencap / xcrun simctl screenshot     → see where test stopped (LAST RESORT)
 5. edit the Dart test file with fix
-6. mcp_patrol_mcp_run(test_file)            → re-run to verify fix
-7. mcp_patrol_mcp_status                    → check pass/fail
-8. append to failure-patterns.md             → if root cause was new
+6. patrol test --target <test_file>                  → re-run to verify fix
+7. patrol devices                                    → check pass/fail
+8. append to failure-patterns.md                     → if root cause was new
 ```

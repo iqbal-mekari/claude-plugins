@@ -27,7 +27,7 @@ skills/create-patrol-test/SKILL.md
 
 - Diagnose why a single Patrol finder or assertion fails.
 - Test corrected selectors by editing the file and running via
-  `mcp_patrol_mcp_run`.
+  `patrol test --target <file>`.
 - Return a confirmed fix (selector update or Semantics addition).
 
 ## Constraints
@@ -41,13 +41,9 @@ skills/create-patrol-test/SKILL.md
 
 ## Diagnosis Workflow
 
-### Step 1 — Capture current state
+### Step 1 — Inspect native tree (PRIMARY)
 
-Call `mcp_patrol_mcp_screenshot` to capture what the device shows.
-
-### Step 2 — Inspect native tree
-
-Call `mcp_patrol_mcp_native-tree`.
+Run the view hierarchy CLI command (see [cli-commands.md](../shared-references/cli-commands.md)) to inspect the native tree.
 
 From the output, check:
 
@@ -57,6 +53,17 @@ From the output, check:
 - **Merged nodes** — is a label+value merged into one node?
 - **Route prefix** — does the text start with a route path?
 - **Element bounds** — is the element on-screen and not obscured?
+
+### Step 2 — Screenshot (LAST RESORT only)
+
+If the hierarchy dump is insufficient (visual layout issues, overlapping elements, ambiguous z-order), capture a screenshot:
+
+```bash
+# Android
+adb shell screencap -p /sdcard/screenshot.png && adb pull /sdcard/screenshot.png /tmp/screenshot.png
+# iOS
+xcrun simctl io booted screenshot /tmp/screenshot.png
+```
 
 ### Step 3 — Read Flutter source (if needed)
 
@@ -86,7 +93,7 @@ for the full decision tree:
 ### Step 5 — Test the fix
 
 Edit the Dart file with the corrected finder, then call
-`mcp_patrol_mcp_run` to confirm the fix executes successfully on the
+`patrol test --target <file>` to confirm the fix executes successfully on the
 live device.
 
 If the test fails, try the next selector strategy from Step 4.

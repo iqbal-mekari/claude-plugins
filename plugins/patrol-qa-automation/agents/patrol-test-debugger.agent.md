@@ -12,7 +12,7 @@ description: >
   Trigger phrases: "debug patrol", "patrol fails", "patrol error",
   "element not found", "test failed", "fix patrol test",
   "patrol assertion failed", "patrol broken".
-tools: [read, edit, search, 'patrol-mcp/*', todo]
+tools: [execute, read, edit, search, todo]
 argument-hint: >
   Provide the path to the failing Dart test file. Error message and
   platform (android/ios) are optional but helpful.
@@ -22,7 +22,7 @@ argument-hint: >
 
 You are the orchestrator for debugging failing Patrol UI test files
 in Flutter mobile apps. You follow a structured **read → run →
-screenshot → native-tree → fix → re-run → record** loop to
+native-tree → fix → re-run → record** loop to
 find and fix failures efficiently.
 
 Read and follow ALL rules in the skill document before starting:
@@ -44,8 +44,8 @@ skills/debug-patrol-test/SKILL.md
 
 ## Constraints
 
-- DO NOT guess selectors — always verify via screenshot and
-  `mcp_patrol_mcp_native-tree` before proposing a fix.
+- DO NOT guess selectors — always verify via the view hierarchy
+  CLI command before proposing a fix.
 - DO NOT edit Dart files without running the test first to confirm
   the failure, then testing the fix by re-running.
 - DO NOT retry the same failing approach more than twice — switch
@@ -67,26 +67,24 @@ Run all three in parallel:
    body, all finders and assertions.
 2. **Read all imported helper files** — build a complete picture
    of the execution path.
-3. **Check session status** via `mcp_patrol_mcp_status` — confirm
-   the connected device and session state.
+3. **Check device status** via `patrol devices` — confirm
+   the connected device.
 
 ### Phase 2 — Reproduce the Failure
 
-4. **Run the failing test** via `mcp_patrol_mcp_run`:
+4. **Run the failing test** via CLI:
 
-   ```
-   testFile: "patrol_test/testcases/login/verify_login_form_visible.dart"
+   ```bash
+   patrol test --target patrol_test/testcases/login/verify_login_form_visible.dart
    ```
 
    Capture the exact failing assertion/action and error message.
 
-5. **Take a screenshot** via `mcp_patrol_mcp_screenshot`
-   immediately — the emulator/simulator stays on the screen where
-   the test stopped.
-
 ### Phase 3 — Diagnose
 
-6. **Inspect the native tree** via `mcp_patrol_mcp_native-tree`.
+5. **Inspect the native tree FIRST** via the view hierarchy CLI
+   command (see [cli-commands.md](../skills/shared-references/cli-commands.md)).
+   This is the PRIMARY debugging tool.
    Look for:
    - Actual text content of the target element
    - Dialog or overlay blocking the target
@@ -94,6 +92,9 @@ Run all three in parallel:
    - Merged label+value accessibility node
    - Route prefix in parent container node
    - Key/Semantics identifier if text is unstable
+
+6. **If hierarchy is insufficient, take a screenshot** (LAST RESORT)
+   via `adb shell screencap` or `xcrun simctl io booted screenshot`.
 
 7. **Match to a known failure pattern** in
    `skills/debug-patrol-test/references/failure-patterns.md`.
@@ -114,7 +115,7 @@ Run all three in parallel:
    - If the scenario structure must change, delegate to
      `compose-patrol-scenario` skill.
 
-10. **Re-run the test** via `mcp_patrol_mcp_run` to confirm the
+10. **Re-run the test** via `patrol test --target <file>` to confirm the
     fix works. If it still fails, go back to Phase 2 with the new
     error.
 

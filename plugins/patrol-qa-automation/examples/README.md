@@ -28,7 +28,7 @@ This directory contains sample artifacts illustrating the pipeline's input/outpu
        ↓
 7. Test files are generated and execution starts automatically
        ↓
-8. mcp_patrol_mcp_run executes tests
+8. patrol test --target executes tests
        ↓
 9. patrol-test-debugger auto-fixes failures (self-healing)
 ```

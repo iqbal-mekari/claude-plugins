@@ -73,7 +73,7 @@ Existing test files may use legacy conventions. These are **outdated** and must 
 
 Before using this skill, ensure you have:
 
-1. **Patrol MCP tools available** — The MCP server must be running and accessible
+1. **Patrol CLI and platform tools available** — `patrol` CLI, `adb` (Android), and `xcrun simctl`/`idb` (iOS) must be installed and accessible
 2. **Patrol finder API reference** — Refer to the Patrol documentation and the patterns in this skill
 3. **Understanding of folder structure**:
    - `testcases/` — Atomic tests (single screen, AAA pattern)
@@ -122,7 +122,7 @@ Each `testcases/<feature>/` folder maps 1-to-1 with a screen (or a major section
 
 Before writing selectors, gather context from:
 
-1. **Live UI tree** — `mcp_patrol_mcp_native-tree` for runtime element identifiers/text/states
+1. **Live UI tree** — use the view hierarchy CLI command (`adb shell uiautomator dump` for Android, `idb ui describe-all` for iOS) for runtime element identifiers/text/states. See [cli-commands.md](../../shared-references/cli-commands.md) for full commands.
 2. **Screen source code** — Read Flutter screen file for widget keys (`Key('...')`), `Semantics(identifier: '...')`, and stable string constants
 
 Then follow this priority order:
@@ -195,7 +195,7 @@ expect($('Section heading'), findsOneWidget);
 await $(#sectionContainer).$('Section heading').tap();
 ```
 
-**How to detect which case you're in:** Use `mcp_patrol_mcp_native-tree` and look at the element's `text` or `label` field. If it contains extra content beyond the expected label, use ancestor chaining or `containing` to disambiguate.
+**How to detect which case you're in:** Use the view hierarchy CLI command (see [cli-commands.md](../../shared-references/cli-commands.md)) and look at the element's `text` or `label` field. If it contains extra content beyond the expected label, use ancestor chaining or `containing` to disambiguate.
 
 Every string in `$()`, `expect()`, or `waitUntilVisible()` MUST be verified against actual app text.
 
@@ -227,22 +227,22 @@ Use environment variables or test accounts — never commit real credentials.
 
 ### Rule 5: Running Patrol Tests
 
-Always validate test files by running them through Patrol MCP.
+Always validate test files by running them via `patrol test --target <file>`.
 
 **When a test fails:**
 
-1. **Take screenshot FIRST** — Use `mcp_patrol_mcp_screenshot` to capture current screen state
-2. **Then inspect view hierarchy** — Use `mcp_patrol_mcp_native-tree` to reveal real element text, identifiers, states
-3. **Trust screenshot/hierarchy as source of truth** — If screenshot/hierarchy show the previous screen but test output indicates it's on the next screen, the navigation FAILED. Fix the navigation step before proceeding.
+1. **Inspect view hierarchy FIRST** — Use the platform-appropriate hierarchy dump command (`adb shell uiautomator dump` for Android, `idb ui describe-all` for iOS) to reveal real element text, identifiers, states. See [cli-commands.md](../../shared-references/cli-commands.md).
+2. **If hierarchy is insufficient, take a screenshot** — Use `adb shell screencap` or `xcrun simctl io booted screenshot` (LAST RESORT only)
+3. **Trust hierarchy/screenshot as source of truth** — If hierarchy/screenshot show the previous screen but test output indicates it's on the next screen, the navigation FAILED. Fix the navigation step before proceeding.
 4. Edit the Dart test file with the proposed fix
-5. Run the file via `mcp_patrol_mcp_run` to validate
+5. Run the file via `patrol test --target <file>` to validate
 6. If still failing, repeat from step 1
 
 **Navigation debugging:**
 
 - If tap fails to navigate: Check for duplicate text labels (use ancestor chaining)
 - If screen appears unchanged: Add `waitUntilVisible()` before the tap
-- If element not found: Use `native-tree` to get the exact text/identifier
+- If element not found: Use the view hierarchy dump to get the exact text/identifier
 
 **Premature failures (10–30s)** — retry up to 3 times.
 
@@ -444,10 +444,10 @@ Recommended columns: CSV Test Case, Priority, Automate?, Screen Folder, Testcase
 After mapping is confirmed, implement each file following the testcase template:
 
 1. **Do NOT include navigation** — testcases are atomic and assume they're already on the target screen
-2. Use `mcp_patrol_mcp_native-tree` + source code to find selectors (Rule 2)
+2. Use the view hierarchy CLI command + source code to find selectors (Rule 2)
 3. **Handle screens not ready for interaction** — Use retry pattern if needed
 4. Write ARRANGE → ACT → ASSERT
-5. Run via `mcp_patrol_mcp_run` to validate before saving
+5. Run via `patrol test --target <file>` to validate before saving
 
 **Step 6 · Write the scenario**
 
@@ -460,17 +460,17 @@ Once all testcases exist, compose the scenario:
 5. Wrap conditional testcases in `if (await $('text').exists)`
 6. End with assertion on final screen route or distinctive landmark element
 
-## Tool Usage
+## CLI Tool Usage
 
-This skill uses the following Patrol MCP tools:
+This skill uses CLI commands for device interaction and test execution.
+See [shared-references/cli-commands.md](../../shared-references/cli-commands.md) for full details.
 
-- `mcp_patrol_mcp_run` — Run a Dart test file (starts patrol develop session or hot-restarts)
-- `mcp_patrol_mcp_screenshot` — Capture device screen for visual debugging
-- `mcp_patrol_mcp_native-tree` — Fetch native UI view hierarchy for selector discovery
-- `mcp_patrol_mcp_status` — Get session status and recent logs
-- `mcp_patrol_mcp_quit` — Quit active Patrol session
+- `patrol test --target <file>` — Run a Dart test file
+- View hierarchy dump (`adb shell uiautomator dump` / `idb ui describe-all`) — Fetch native UI hierarchy for selector discovery (PRIMARY tool)
+- Screenshot (`adb shell screencap` / `xcrun simctl io booted screenshot`) — Visual debugging (LAST RESORT only)
+- `patrol devices` — Check connected devices
 
-**Note:** Patrol MCP cannot run inline Dart code. Always write the complete test file, then run it. Use the write-run-observe-edit loop.
+**Note:** Patrol CLI cannot run inline Dart code. Always write the complete test file, then run it. Use the write-run-observe-edit loop.
 
 ## References
 

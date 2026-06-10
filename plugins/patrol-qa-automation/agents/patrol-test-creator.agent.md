@@ -9,7 +9,7 @@ description: >
   "UI test", "test automation", "test script", "test scenario",
   "testcase", "automate", "CSV test cases", "Patrol test",
   "create Patrol tests", "generate patrol", "automate UI".
-tools: [execute, read, edit, search, 'patrol-mcp/*', todo]
+tools: [execute, read, edit, search, todo]
 argument-hint: >
   Provide the path to your test case file (CSV, plain text) and
   optionally the target feature or screen name.
@@ -36,7 +36,7 @@ skills/create-patrol-test/SKILL.md
 - Triage each case: automate / needs setup / skip.
 - Produce a mapping table and confirm with the user before writing.
 - Write atomic testcase Dart files and scenario Dart files.
-- Validate scripts with Patrol MCP tools before saving.
+- Validate scripts with Patrol CLI before saving.
 
 ## Constraints
 
@@ -114,8 +114,8 @@ For each confirmed testcase, gather selector context:
 
 1. Read the Flutter screen file for widget Keys and
    `Semantics(identifier: '...')`.
-2. Call `mcp_patrol_mcp_native-tree` for runtime element tree with
-   text, identifiers, and bounds.
+2. Run the view hierarchy CLI command for runtime element tree with
+   text, identifiers, and bounds. See [cli-commands.md](../skills/shared-references/cli-commands.md).
 3. Determine the best Patrol finder strategy (text, Key, ancestor
    chaining, containing).
 

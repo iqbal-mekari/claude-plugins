@@ -189,11 +189,14 @@ $(#submit_button).tap();
    - Open accessibility inspector in devtools
    - Verify identifier appears in accessibility tree
 
-2. Use Patrol's native-tree command via MCP:
+2. Use the view hierarchy CLI command (see [cli-commands.md](../../shared-references/cli-commands.md)):
+   ```bash
+   # Android
+   adb shell uiautomator dump /sdcard/window_dump.xml && adb pull /sdcard/window_dump.xml /tmp/window_dump.xml && cat /tmp/window_dump.xml
+   # iOS
+   idb ui describe-all
    ```
-   mcp_patrol_mcp_native-tree
-   ```
-   This shows what Patrol can see.
+   This shows what the native accessibility tree exposes.
 
 ### Common Issues
 

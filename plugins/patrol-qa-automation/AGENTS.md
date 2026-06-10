@@ -5,10 +5,10 @@ This workspace contains VS Code Copilot **agent definitions** and **skills** for
 ## Critical Rules (read before any task)
 
 1. **Read the relevant `SKILL.md` first.** It is the authoritative source — it overrides any legacy patterns found elsewhere.
-2. **Never write Patrol test code without running it first.** Use `mcp_patrol_mcp_run` to validate each test file on the live device before considering it done.
+2. **Never write Patrol test code without running it first.** Use `patrol test --target <file>` to validate each test file on the live device before considering it done.
 3. **Never hardcode credentials.** Always use function parameters or test setup.
 4. **Never use pixel coordinates** as a Patrol selector — they are brittle.
-5. **Patrol MCP is a test runner, not a device driver.** You cannot tap/type/scroll via MCP — write complete Dart test files, then run them. The debugging loop is: edit file → run → observe → edit again.
+5. **Patrol CLI is a test runner, not a device driver.** You cannot tap/type/scroll via CLI commands — write complete Dart test files, then run them. The debugging loop is: edit file → run → observe → edit again.
 
 ## Agents
 
@@ -92,17 +92,18 @@ After test file generation, execution starts automatically.
 - [Scenario Dart template](skills/create-patrol-test/references/scenario_template.dart)
 - [Examples](examples/) — sample CSV input, testcase Dart, and scenario Dart with pipeline walkthrough
 
-## MCP Tools Available
+## CLI Tools Available
 
 | Tool | Use |
 |---|---|
-| `mcp_patrol_mcp_run` | Run a Dart test file on the device |
-| `mcp_patrol_mcp_native-tree` | Dump native view hierarchy for selector discovery |
-| `mcp_patrol_mcp_screenshot` | Screenshot for visual debugging |
-| `mcp_patrol_mcp_status` | Check session state and connected device |
-| `mcp_patrol_mcp_quit` | End the Patrol MCP session |
+| `patrol test --target <file>` | Run a Dart test file on the device |
+| `adb shell uiautomator dump` / `idb ui describe-all` | Dump native view hierarchy for selector discovery (see [cli-commands.md](skills/shared-references/cli-commands.md)) |
+| `adb shell screencap` / `xcrun simctl io booted screenshot` | Screenshot for visual debugging (LAST RESORT) |
+| `patrol devices` / `flutter devices` | Check connected devices |
 | Atlassian MCP | Read Jira tickets, post comments, read Confluence pages |
 | Figma MCP | Fetch design context, screenshots, component metadata |
+
+See [CLI Commands Reference](skills/shared-references/cli-commands.md) for full command details and platform-specific variants.
 
 ## Scope Limits
 

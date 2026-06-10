@@ -4,7 +4,7 @@ description: >
   Write a single atomic Patrol testcase Dart file for Flutter mobile apps.
   Handles selector discovery (native tree + screen source), localization
   mapping, Dart authoring, syntax validation, and test execution via Patrol
-  MCP. Invoke when a confirmed test case needs to be written as a Patrol
+  CLI. Invoke when a confirmed test case needs to be written as a Patrol
   testcase. For planning, triage, or mapping — use patrol-test-creator agent.
   Trigger: write testcase, create testcase dart, write patrol testcase,
   generate testcase file.
@@ -26,7 +26,7 @@ skills/create-patrol-test/SKILL.md
 - Write exactly **one atomic testcase** per invocation.
 - Discover selectors from live UI and Flutter source.
 - Map string literals to localization approach.
-- Validate by running the test via Patrol MCP before saving.
+- Validate by running the test via Patrol CLI before saving.
 
 ## Constraints
 
@@ -37,7 +37,7 @@ skills/create-patrol-test/SKILL.md
   atomic — only scenarios orchestrate).
 - DO NOT use pixel coordinates as selectors.
 - DO NOT hardcode credentials, user IDs, or real tokens.
-- DO NOT save the file until running via `mcp_patrol_mcp_run`
+- DO NOT save the file until running via `patrol test --target <file>`
   confirms the test executes successfully.
 - ONLY write code that is covered by the test case steps.
 
@@ -56,8 +56,8 @@ Run both in parallel:
 
 1. Read the Flutter screen file (`*_screen.dart`) for widget Keys
    and `Semantics(identifier: '...')` values.
-2. Call `mcp_patrol_mcp_native-tree` on the live device to get the
-   element tree with text, identifiers, and bounds.
+2. Run the view hierarchy CLI command on the live device to get the
+   element tree with text, identifiers, and bounds. See [cli-commands.md](../shared-references/cli-commands.md).
 
 Apply the selector priority hierarchy — see
 [shared-references/selector-rules.md](../shared-references/selector-rules.md)
@@ -100,13 +100,14 @@ Apply relevant rules from SKILL.md:
 
 ### Step 5 — Validate by running
 
-1. Run the test via `mcp_patrol_mcp_run` to confirm it executes
+1. Run the test via `patrol test --target` to confirm it executes
    on the live device:
+   ```bash
+   patrol test --target patrol_test/testcases/login/tap_login_button.dart
    ```
-   mcp_patrol_mcp_run  testFile="patrol_test/testcases/login/tap_login_button.dart"
-   ```
-2. If a step fails, call `mcp_patrol_mcp_screenshot` then
-   `mcp_patrol_mcp_native-tree` to diagnose; fix the Dart file and
+2. If a step fails, inspect the view hierarchy FIRST via the CLI
+   command (see [cli-commands.md](../shared-references/cli-commands.md)),
+   then take a screenshot as a last resort. Fix the Dart file and
    re-run before saving.
 
 ### Step 6 — Save

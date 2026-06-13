@@ -35,6 +35,16 @@
         "name": "Iqbal"
       },
       "keywords": ["feature-flag", "cleanup", "refactoring", "flutter", "dart", "kotlin", "swift", "graduation", "retirement"]
+    },
+    {
+      "name": "code-review-agent",
+      "source": "./plugins/code-review-agent",
+      "description": "AI-powered Bitbucket PR review agent with multi-persona analysis. Combines deterministic pipeline review with specialized Security, Performance, and Quality sub-agents.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Iqbal"
+      },
+      "keywords": ["code-review", "bitbucket", "pr-review", "security", "performance", "quality", "multi-agent"]
     }
   ]
 }

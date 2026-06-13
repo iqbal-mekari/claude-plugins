@@ -33,6 +33,13 @@ plugins/
     agents/                       ← Agent definitions (feature-flag-cleaner)
     skills/                       ← Skill definitions (cleanup-feature-flag) + references
     examples/                     ← Sample invocation and output
+  code-review-agent/              ← AI-powered Bitbucket PR review
+    .claude-plugin/plugin.json    ← Plugin metadata
+    AGENTS.md                     ← Agent/skill instructions
+    agents/                       ← Agent definitions (pr-reviewer)
+    skills/                       ← Skill definitions (6 skills)
+    reviewers/                    ← Persona prompts (security, performance, quality)
+    examples/                     ← Sample review output
 ```
 
 When adding a new plugin: create `plugins/<name>/` with `.claude-plugin/plugin.json`, then register it in the root `.claude-plugin/marketplace.json`.
@@ -93,6 +100,33 @@ Automated feature flag lifecycle agent that removes flag checks and cleans up ca
 - Pre-existing failure aware — establishes test baseline before cleanup to distinguish new vs old failures
 - Conservative on uncertainty — skips ambiguous transformations with TODO comments
 - Scope boundary — code transformation only; branching, committing, and PR creation is the user's responsibility
+
+## Plugin Architecture: code-review-agent
+
+AI-powered Bitbucket PR review agent with multi-persona analysis. Combines a deterministic pipeline (ported from Alibaba's Open Code Review) with specialized Security, Performance, and Quality sub-agents. No external CLI dependencies — all logic runs natively in Claude Code.
+
+**Agent:**
+- `pr-reviewer` — User-invocable orchestrator. Runs the full pipeline: fetch PRs → fetch diff → deterministic review → 3 parallel persona reviews → merge findings → present results → optional Bitbucket comment posting.
+
+**Skills:**
+- `review-pr` (`/review-pr`) — Main entry: full pipeline from fetch to post
+- `fetch-prs` — Fetches Bitbucket PRs assigned to user (workspace-wide or repo-specific)
+- `run-pr-review` — Deterministic pipeline: diff parsing → file filtering → smart bundling → rule-matched review
+- `run-persona-review` — Spawns one persona sub-agent for focused review (Security/Performance/Quality)
+- `merge-review-findings` — Deduplicates and prioritizes findings from all sources
+- `post-review-comments` — Posts summary + inline comments to Bitbucket PR
+
+**Reviewer personas (in `reviewers/`):**
+- `security-sentinel` — OWASP Top 10, auth, injection, secrets, crypto
+- `performance-pursuer` — N+1 queries, algorithm complexity, memory, I/O, concurrency
+- `quality-custodian` — SOLID, architecture, naming, code smells, test coverage
+
+**Key design decisions:**
+- OCR as design inspiration, not dependency — ports OCR's deterministic pipeline concepts (file bundling, rule matching, structured output) without requiring the `ocr` CLI
+- Multi-persona parallel execution — 3 sub-agents run concurrently via separate `actor` tool calls
+- Bitbucket-only scope — no GitHub/GitLab support
+- Always confirm before posting — never posts comments without explicit user approval
+- Review rules support 4-layer priority chain: CLI flag > project config > global config > built-in defaults
 
 ## Critical Rules
 
@@ -164,3 +198,7 @@ Agents must never proceed past gates 1 or 2 without explicit human approval. See
 - `plugins/feature-flag-cleanup/AGENTS.md` — Feature flag cleanup agent/skill details
 - `plugins/feature-flag-cleanup/skills/cleanup-feature-flag/SKILL.md` — Cleanup workflow (7 phases)
 - `plugins/feature-flag-cleanup/skills/cleanup-feature-flag/references/cleanup-patterns.md` — 10 transformation patterns with examples
+- `plugins/code-review-agent/AGENTS.md` — Code review agent/skill details and critical rules
+- `plugins/code-review-agent/agents/pr-reviewer.md` — PR reviewer agent pipeline definition
+- `plugins/code-review-agent/skills/review-pr/SKILL.md` — Main entry point for PR review
+- `plugins/code-review-agent/examples/sample_review_output.md` — Example review output format

@@ -13,7 +13,7 @@ This directory contains sample artifacts illustrating the pipeline's input/outpu
 ## Pipeline Walkthrough
 
 ```
-1. User provides: Jira ticket QON-1234 (Login feature)
+1. User provides: Jira ticket PROJ-1234 (Login feature)
        ↓
 2. create-test-cases skill → sample_input_test_cases.csv
        ↓

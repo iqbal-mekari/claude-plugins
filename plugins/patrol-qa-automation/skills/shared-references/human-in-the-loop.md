@@ -61,7 +61,7 @@ This document defines the explicit approval checkpoints where a human must confi
 │    • create-patrol-testcase skill (per testcase)                        │
 │    • compose-patrol-scenario skill (per scenario)                       │
 │       ↓                                                                 │
-│  Output: Dart files in patrol_test/testcases/ and patrol_test/scenarios/ │
+│  Output: Dart files in integration_test/testcases/ & scenarios/          │
 │                                                                         │
 └──────────────────────────────┬──────────────────────────────────────────┘
                                │

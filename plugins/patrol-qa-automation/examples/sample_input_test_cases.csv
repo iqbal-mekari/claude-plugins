@@ -1,48 +1,48 @@
 Ticket,Ticket Title,Feature Area,TC ID,Title,Preconditions,Steps,Expected Result,Category,Priority,Tags
-QON-1234,User Login Feature,Login,TC001,User able to login with valid credentials,"- Android 14+ device
+PROJ-1234,User Login Feature,Login,TC001,User able to login with valid credentials,"- Android 14+ device
 - App installed and on login screen
 - Valid test account exists","1. Tap email field
-2. Type 'testuser@example.com'
+2. Type 'user@example.com'
 3. Tap password field
 4. Type 'ValidPass123!'
 5. Tap 'Login' button","- Loading indicator appears
 - Home screen is displayed
 - Welcome message visible with user name",Smoke,P0,"UI, Interaction"
-QON-1234,User Login Feature,Login,TC002,User able to see login form elements,"- Android 14+ device
+PROJ-1234,User Login Feature,Login,TC002,User able to see login form elements,"- Android 14+ device
 - App launched fresh
 - Login screen visible","1. Observe login screen","- Email field visible with placeholder text
 - Password field visible with placeholder text
 - Login button visible and enabled
 - 'Forgot password' link visible",Smoke,P0,"UI, Visual"
-QON-1234,User Login Feature,Login,TC003,User not able to login with empty email,"- Android 14+ device
+PROJ-1234,User Login Feature,Login,TC003,User not able to login with empty email,"- Android 14+ device
 - App on login screen","1. Leave email field empty
 2. Tap password field
 3. Type 'ValidPass123!'
 4. Tap 'Login' button","- Inline error message visible below email field
 - Login button remains on screen (no navigation)
 - Error message text: 'Email is required'",Regression,P1,"UI, Negative"
-QON-1234,User Login Feature,Login,TC004,User not able to login with invalid email format,"- Android 14+ device
+PROJ-1234,User Login Feature,Login,TC004,User not able to login with invalid email format,"- Android 14+ device
 - App on login screen","1. Tap email field
 2. Type 'invalid-email'
 3. Tap password field
 4. Type 'ValidPass123!'
 5. Tap 'Login' button","- Inline error message visible: 'Invalid email format'
 - User remains on login screen",Regression,P1,"UI, Negative, Boundary"
-QON-1234,User Login Feature,Login,TC005,User not able to login with wrong password,"- Android 14+ device
+PROJ-1234,User Login Feature,Login,TC005,User not able to login with wrong password,"- Android 14+ device
 - App on login screen
 - Valid email exists in system","1. Tap email field
-2. Type 'testuser@example.com'
+2. Type 'user@example.com'
 3. Tap password field
 4. Type 'WrongPass999!'
 5. Tap 'Login' button","- Error toast/snackbar visible: 'Invalid credentials'
 - User remains on login screen
 - Password field cleared",Regression,P1,"UI, Negative"
-QON-1234,User Login Feature,Login,TC006,User able to toggle password visibility,"- Android 14+ device
+PROJ-1234,User Login Feature,Login,TC006,User able to toggle password visibility,"- Android 14+ device
 - App on login screen","1. Tap password field
 2. Type 'MySecret123'
 3. Tap password visibility toggle icon","- Password text becomes visible (not masked)
 - Toggle icon changes to 'hide' variant",Regression,P2,"UI, Interaction"
-QON-1234,User Login Feature,Login,TC007,User able to navigate to forgot password screen,"- Android 14+ device
+PROJ-1234,User Login Feature,Login,TC007,User able to navigate to forgot password screen,"- Android 14+ device
 - App on login screen","1. Tap 'Forgot password' link","- Forgot password screen is displayed
 - Email input field visible
 - Back navigation available",Regression,P1,"UI, Navigation"

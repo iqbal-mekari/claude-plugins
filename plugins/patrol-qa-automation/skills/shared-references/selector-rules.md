@@ -39,6 +39,35 @@ Semantics(
 )
 ```
 
+**Why this tier ranks below text but above everything else:** a Semantics `identifier` (or a hardcoded, non-localized Semantics `label`) is effectively a stable key — it does not change across locales, screen densities, or copy edits. Visible text does change across locales, so whenever a widget exposes an `identifier`/`label`, prefer it over its visible text as the test anchor, even if the text selector would technically also work today.
+
+**Critical distinction — `$('text')` vs `Semantics.label` vs `Semantics.identifier`:**
+
+These three are easy to conflate and mixing them up is a common source of "selector finds 0 widgets" flakiness:
+
+| Selector | Matches | Does NOT match |
+|----------|---------|-----------------|
+| `$('text')` | `Text` / `RichText` widgets only | `Semantics.label`, `Semantics.identifier` |
+| `find.bySemanticsLabel(...)` | `Semantics.label` only | `Semantics.identifier`, visible `Text` |
+| *(no built-in finder)* | — | `Semantics.identifier` has no built-in finder at all |
+
+`$('text')` resolves to `find.text(matching, findRichText: true)` under the hood — it only walks the widget tree looking for `Text`/`RichText` widgets and never queries the semantics tree. A `Semantics(label: 'Save', child: Icon(...))` (an icon/SVG with no `Text` descendant) will never be found by `$('Save')`, even though "Save" is present in the accessibility tree.
+
+`find.bySemanticsLabel(pattern)` walks the semantics tree and matches `SemanticsNode.label` — but many design-system widgets (e.g. buttons) set `identifier` instead of `label`. In that case `find.bySemanticsLabel(...)` returns 0 widgets even though the widget is clearly on screen.
+
+Nothing built-in matches `Semantics.identifier`. Use a widget predicate instead:
+
+```dart
+// Match Semantics.identifier (design-system buttons set identifier, NOT label)
+Finder bySemId(String id) => find.byWidgetPredicate(
+  (w) => w is Semantics && w.properties.identifier == id);
+// Match Semantics.label (e.g. an icon/SVG given a label anchor)
+Finder bySemLabel(String label) => find.byWidgetPredicate(
+  (w) => w is Semantics && w.properties.label == label);
+```
+
+Keep `bySemId`/`bySemLabel` as shared helpers (e.g. `integration_test/helpers/`) and reach for them whenever `$(#id)` or `find.bySemanticsLabel(...)` unexpectedly returns 0 widgets — it usually means the value lives on the other property.
+
 ### 3. Widget type + ancestor chaining (when duplicate text exists)
 
 When the same text appears multiple times (e.g., header + button), use ancestor chaining to disambiguate:

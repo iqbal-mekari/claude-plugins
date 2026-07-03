@@ -75,10 +75,13 @@ Run all three in parallel:
 4. **Run the failing test** via CLI:
 
    ```bash
-   patrol test --target patrol_test/testcases/login/verify_login_form_visible.dart
+   patrol test --target integration_test/testcases/login/verify_login_form_visible.dart
    ```
 
-   Capture the exact failing assertion/action and error message.
+   Capture the exact failing assertion/action and error message. If
+   the failure was found via a tagged run (`P0`/`smoke`), reproduce
+   it directly against the single file rather than the whole tagged
+   set — it's faster to iterate on.
 
 ### Phase 3 — Diagnose
 
@@ -92,12 +95,21 @@ Run all three in parallel:
    - Merged label+value accessibility node
    - Route prefix in parent container node
    - Key/Semantics identifier if text is unstable
+   - Locale mismatch (selector assumes one language, device is running
+     another) — a sign the testcase should use a Key/Semantics
+     `identifier` finder instead of a text finder
 
 6. **If hierarchy is insufficient, take a screenshot** (LAST RESORT)
    via `adb shell screencap` or `xcrun simctl io booted screenshot`.
 
 7. **Match to a known failure pattern** in
-   `skills/debug-patrol-test/references/failure-patterns.md`.
+   `skills/debug-patrol-test/references/failure-patterns.md` (a
+   living, continuously expanding catalog — check it before
+   proposing a new fix). If the symptom looks timing-related
+   (element appears late, animation not settled, real-device delay
+   vs. a simulated clock in tests) consult
+   [wait-strategies.md](../skills/shared-references/wait-strategies.md)
+   for the correct wait strategy before touching the selector.
 
 8. **Delegate to `debug-patrol-selector` skill** if:
    - The failing code is a finder, `expect()`, or `.tap()` selector
@@ -122,7 +134,9 @@ Run all three in parallel:
 ### Phase 5 — Record New Failure Pattern
 
 11. After the fix is confirmed, check if the root cause is already
-    documented in `failure-patterns.md`.
+    documented in `failure-patterns.md`. This step is **mandatory** —
+    never skip it, even when the fix felt trivial. The catalog only
+    stays useful if every new root cause gets appended.
 
     **If NOT documented**, append a new entry:
     - **Pattern number** — next sequential integer
@@ -130,6 +144,10 @@ Run all three in parallel:
     - **Root cause** — one-line explanation
     - **Diagnosis** — how to identify via screenshot/native-tree
     - **Fix** — before/after Dart snippet
+
+    If the root cause was timing-related, also cross-reference
+    [wait-strategies.md](../skills/shared-references/wait-strategies.md)
+    in the entry so future debugging starts there.
 
 12. Mention the new pattern entry in your final reply.
 

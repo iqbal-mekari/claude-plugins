@@ -53,8 +53,50 @@ From the output, check:
 - **Merged nodes** — is a label+value merged into one node?
 - **Route prefix** — does the text start with a route path?
 - **Element bounds** — is the element on-screen and not obscured?
+- **Semantics-only node** — does the native tree show a `Semantics`
+  node (label/identifier) for this element with no matching `Text`/
+  `RichText` node? If so, a text finder will never match it — see
+  Step 2 below.
 
-### Step 2 — Screenshot (LAST RESORT only)
+### Step 2 — Semantics-only elements (text finder finds nothing)
+
+An element can be visually on screen yet invisible to `$('text')` if
+its accessible name comes from a `Semantics` widget's `label` or
+`identifier` property rather than a `Text`/`RichText` widget — e.g.
+an icon-only button, custom-painted text, or a non-text child
+wrapped in `Semantics`. `$('text')` only matches `Text`/`RichText`
+content, so it reports zero matches even though the text is visibly
+rendered.
+
+Suspect this when: the element is visibly present, `$('text')` finds
+nothing, and the native tree from Step 1 shows a `Semantics` node
+(label/identifier) instead of a `Text` node for that element.
+
+Fix by switching finder strategy — match the semantics tree instead
+of the text-widget tree:
+
+```dart
+// Before — fails: no Text/RichText widget carries this string
+expect($('Save'), findsOneWidget);
+
+// After — match Semantics.identifier via widget predicate
+expect(
+  find.byWidgetPredicate(
+    (widget) =>
+        widget is Semantics && widget.properties.identifier == 'save_button',
+  ),
+  findsOneWidget,
+);
+
+// After — or match Semantics.label directly
+expect(find.bySemanticsLabel('Save'), findsOneWidget);
+```
+
+See pattern #19 in
+[failure-patterns.md](../debug-patrol-test/references/failure-patterns.md)
+for the full root-cause breakdown.
+
+### Step 3 — Screenshot (LAST RESORT only)
 
 If the hierarchy dump is insufficient (visual layout issues, overlapping elements, ambiguous z-order), capture a screenshot:
 
@@ -65,7 +107,7 @@ adb shell screencap -p /sdcard/screenshot.png && adb pull /sdcard/screenshot.png
 xcrun simctl io booted screenshot /tmp/screenshot.png
 ```
 
-### Step 3 — Read Flutter source (if needed)
+### Step 4 — Read Flutter source (if needed)
 
 If the hierarchy shows no Key/Semantics identifier and text is
 ambiguous:
@@ -74,7 +116,7 @@ ambiguous:
    `Semantics(identifier: '...')`.
 2. Determine if `Semantics` needs to be added.
 
-### Step 4 — Determine fix
+### Step 5 — Determine fix
 
 Apply the selector priority hierarchy — see
 [shared-references/selector-rules.md](../shared-references/selector-rules.md)
@@ -90,16 +132,16 @@ for the full decision tree:
 6. **Add `Semantics(identifier: '...', container: true)`** — when no
    other selector is stable; never use coordinates
 
-### Step 5 — Test the fix
+### Step 6 — Test the fix
 
 Edit the Dart file with the corrected finder, then call
 `patrol test --target <file>` to confirm the fix executes successfully on the
 live device.
 
-If the test fails, try the next selector strategy from Step 4.
+If the test fails, try the next selector strategy from Step 5.
 Do not retry the same approach twice.
 
-### Step 6 — Report
+### Step 7 — Report
 
 Return the fix without applying it to the caller's file (the caller
 will apply it).

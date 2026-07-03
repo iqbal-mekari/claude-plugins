@@ -1,4 +1,4 @@
-// Expected output: patrol_test/scenarios/login/login_full_journey.dart
+// Expected output: integration_test/scenarios/login/login_full_journey.dart
 
 import 'package:patrol/patrol.dart';
 import 'package:your_app/main.dart';

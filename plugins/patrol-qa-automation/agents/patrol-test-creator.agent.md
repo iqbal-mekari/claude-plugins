@@ -31,7 +31,7 @@ skills/create-patrol-test/SKILL.md
 ## Scope
 
 - Parse and analyse test case files provided by the user.
-- Map test cases to Flutter screens and `patrol_test/testcases/`
+- Map test cases to Flutter screens and `integration_test/testcases/`
   subfolders.
 - Triage each case: automate / needs setup / skip.
 - Produce a mapping table and confirm with the user before writing.
@@ -81,9 +81,9 @@ Group test cases by screen. Use section headers as the primary
 signal. Cross-reference with Flutter screen files in the codebase
 (`*_screen.dart`).
 
-For each group, determine the `patrol_test/testcases/<screen>/` folder.
-If testcase files already exist in that folder, list them — reuse
-before creating new files.
+For each group, determine the `integration_test/testcases/<screen>/`
+folder. If testcase files already exist in that folder, list them —
+reuse before creating new files.
 
 ### Step 4 — Triage
 
@@ -118,6 +118,10 @@ For each confirmed testcase, gather selector context:
    text, identifiers, and bounds. See [cli-commands.md](../skills/shared-references/cli-commands.md).
 3. Determine the best Patrol finder strategy (text, Key, ancestor
    chaining, containing).
+4. Favor Key / Semantics `identifier` finders over literal text
+   finders when the app supports more than one locale — text
+   finders are locale-fragile. Don't select on a Semantics/
+   content-description **label** when a proper `identifier` exists.
 
 ### Step 7 — Write testcases
 
@@ -125,7 +129,7 @@ For each ✅ case in confirmed order, invoke the
 `create-patrol-testcase` skill with:
 
 - Test case title, steps, and expected result
-- Target screen folder (e.g. `testcases/login/`)
+- Target screen folder (e.g. `integration_test/testcases/login/`)
 - Output filename (e.g. `tap_login_button.dart`)
 - Any required function parameters from triage
 
@@ -141,7 +145,19 @@ Once all testcases are confirmed saved, invoke the
 - Ordered list of saved testcase file paths
 - Helper functions to use (login, logout, navigation)
 - Output scenario path (e.g.
-  `scenarios/login/login_full_journey.dart`)
+  `integration_test/scenarios/login/login_full_journey.dart`)
+
+Every scenario file defines exactly one `patrolTest` that begins with
+`launchApp($)` before any other interaction. Use a soft-assert
+collector (e.g. a `Checks`-style helper) to check multiple conditions
+inside that single test instead of splitting across several
+`patrolTest` blocks — the Android Test Orchestrator only reliably runs
+the first app-launching test per file. Tag focused, single-module
+scenarios `P0` and the composed, single-login suite `smoke`. If the
+scenario needs test credentials, source them via `--dart-define` (e.g.
+`TEST_EMAIL`, `TEST_PASSWORD`) — never hardcode — and call
+`markTestSkipped('<reason>')` if a required value is missing at run
+time.
 
 ## Debugging Failures
 
@@ -154,6 +170,11 @@ invoke the `debug-patrol-selector` skill with:
 
 Apply the fix returned by the skill to the relevant Dart file
 before re-running.
+
+If the failure looks timing-related instead (element appears late,
+animation not settled, real-device delay vs. a simulated clock),
+consult [wait-strategies.md](../skills/shared-references/wait-strategies.md)
+for the correct wait strategy before changing the selector itself.
 
 ## Output Summary
 

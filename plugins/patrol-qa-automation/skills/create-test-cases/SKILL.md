@@ -35,18 +35,18 @@ description.
 
 When the user provides a Jira ticket URL:
 
-1. Fetch the ticket using `mcp_atlassian_getJiraIssue`.
+1. Fetch the ticket using the Atlassian/Jira MCP tool.
 2. Extract: summary, description, acceptance criteria, subtasks,
    linked issues.
 3. If the ticket references a Confluence PRD/RFC, fetch it using
-   `mcp_atlassian_getConfluencePage`.
+   the Atlassian/Confluence MCP tool.
 4. Generate test cases scoped to the ticket's requirements.
 
 ### 2. PRD / Confluence Document
 
 When the user provides a Confluence page URL or pastes PRD content:
 
-1. Fetch the page using `mcp_atlassian_getConfluencePage` if URL.
+1. Fetch the page using the Atlassian/Confluence MCP tool if URL.
 2. Parse requirements, user stories, and acceptance criteria.
 3. Generate test cases covering every stated requirement.
 
@@ -54,8 +54,8 @@ When the user provides a Confluence page URL or pastes PRD content:
 
 When the user provides a Figma file/frame URL:
 
-1. Fetch design screenshot using `mcp_figma_dev_mod_get_screenshot`.
-2. Extract component structure using `mcp_figma_dev_mod_get_design_context`.
+1. Fetch design screenshot using the Figma MCP tool.
+2. Extract component structure using the Figma MCP tool.
 3. Identify UI states, variants, and interaction flows from the design.
 4. Generate test cases for:
    - Each visible screen state (default, loading, empty, error, success)
@@ -135,7 +135,7 @@ Each test case **must** include:
 
 ### Jira Comment
 
-Post via `mcp_atlassian_addCommentToJiraIssue` with
+Post via the Atlassian/Jira MCP tool with
 `contentFormat: markdown`:
 
 ```markdown
@@ -179,7 +179,7 @@ Rules:
 - Smoke CSV contains only Category=Smoke test cases
 
 **IMPORTANT — Direct file writing only:**
-Write CSV content directly using `create_file`. Do NOT create Python scripts,
+Write CSV content directly by writing the file. Do NOT create Python scripts,
 shell scripts, or any helper programs to generate the output. The agent
 has all the data needed and must write the files itself in a single step.
 

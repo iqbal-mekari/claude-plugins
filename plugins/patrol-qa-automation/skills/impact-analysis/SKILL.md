@@ -47,7 +47,7 @@ When a PR is provided:
 
 ### 2. Branch Name
 
-- Branch name: `feature/attendance-clock-in`
+- Branch name: `feature/login-improvements`
 - Compared against target branch (default: `develop`).
 
 When a branch is provided:
@@ -144,7 +144,7 @@ tomo_search git-diff lib develop true
 ### Analyze specific file changes
 
 ```bash
-tomo_search analyze lib/features/attendance/clock_in_service.dart "10-14,25" lib git_grep
+tomo_search analyze lib/features/login/login_service.dart "10-14,25" lib git_grep
 ```
 
 ### Expected CLI output format
@@ -238,41 +238,41 @@ Do NOT flag test cases for:
   },
   "impacted_modules": [
     {
-      "module": "attendance",
-      "path_pattern": "lib/features/attendance/",
-      "scopes": ["AttendanceService.clockIn", "ClockInPage.build"],
-      "changed_files": ["lib/features/attendance/clock_in_service.dart"],
+      "module": "login",
+      "path_pattern": "lib/features/login/",
+      "scopes": ["LoginService.submitLogin", "LoginPage.build"],
+      "changed_files": ["lib/features/login/login_service.dart"],
       "change_type": "behavioral"
     }
   ],
   "impacted_scopes": [
     {
-      "scope": "AttendanceService.clockIn",
-      "file": "lib/features/attendance/clock_in_service.dart",
+      "scope": "LoginService.submitLogin",
+      "file": "lib/features/login/login_service.dart",
       "changed_lines": "10-14, 25",
-      "change_summary": "Added geofence validation before clock-in submission",
+      "change_summary": "Added rate-limit validation before login submission",
       "consumers": [
-        "lib/features/attendance/presentation/clock_in_page.dart",
-        "lib/features/attendance/bloc/attendance_bloc.dart"
+        "lib/features/login/presentation/login_page.dart",
+        "lib/features/login/bloc/login_bloc.dart"
       ]
     }
   ],
   "recommended_test_cases": [
     {
       "tc_id": "TC005",
-      "title": "User able to clock in successfully",
-      "source_csv": "test-cases/ATT-123_attendance_test_cases.csv",
+      "title": "User able to login successfully",
+      "source_csv": "test-cases/PROJ-1234_login_test_cases.csv",
       "confidence": "HIGH",
-      "reason": "clockIn method now includes geofence validation — this test validates successful clock-in which requires passing the new validation",
-      "impacted_by_scopes": ["AttendanceService.clockIn"],
+      "reason": "submitLogin method now includes rate-limit validation — this test validates successful login which requires passing the new validation",
+      "impacted_by_scopes": ["LoginService.submitLogin"],
       "recommended_action": "MODIFY"
     },
     {
       "tc_id": "NEW",
-      "title": "User not able to clock in outside geofence",
+      "title": "User not able to login when rate-limited",
       "confidence": "HIGH",
-      "reason": "New geofence validation added — no existing test case covers the failure scenario",
-      "impacted_by_scopes": ["AttendanceService.clockIn"],
+      "reason": "New rate-limit validation added — no existing test case covers the failure scenario",
+      "impacted_by_scopes": ["LoginService.submitLogin"],
       "recommended_action": "CREATE"
     }
   ],
@@ -361,11 +361,11 @@ Agent:
 ### From branch
 
 ```
-User: "What's the test impact of branch feature/new-leave-form?"
+User: "What's the test impact of branch feature/new-login-form?"
 
 Agent:
 1. Ensure tomo_search installed
-2. git checkout feature/new-leave-form
+2. git checkout feature/new-login-form
 3. tomo_search git-diff lib develop false
 4. Parse output → semantic matching → JSON output
 ```
@@ -373,10 +373,10 @@ Agent:
 ### With explicit path
 
 ```
-User: "Analyze impact on /Users/me/projects/talenta-app, branch feature/xyz"
+User: "Analyze impact on /Users/me/projects/your_app, branch feature/xyz"
 
 Agent:
-1. cd /Users/me/projects/talenta-app
+1. cd /Users/me/projects/your_app
 2. Ensure tomo_search installed
 3. tomo_search git-diff lib develop false
 4. Parse output → semantic matching → JSON output

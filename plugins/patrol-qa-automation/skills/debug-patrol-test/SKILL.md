@@ -37,7 +37,7 @@ Diagnose and fix failing Patrol test files for Android/iOS mobile apps. Follows 
 4. **Run the test** via CLI:
 
    ```bash
-   patrol test --target patrol_test/testcases/login/verify_login_form_visible.dart
+   patrol test --target integration_test/testcases/login/verify_login_form_visible.dart
    ```
 
    Capture the exact error: which assertion/action failed and the error message.
@@ -78,7 +78,7 @@ Diagnose and fix failing Patrol test files for Android/iOS mobile apps. Follows 
 
 9. **Run the test again** to validate:
    ```bash
-   patrol test --target patrol_test/testcases/login/verify_login_form_visible.dart
+   patrol test --target integration_test/testcases/login/verify_login_form_visible.dart
    ```
 
 10. **Check pass/fail** via `patrol devices`.
@@ -126,6 +126,21 @@ See [failure-patterns.md](./references/failure-patterns.md) for the full referen
 | Element found on Android but not iOS         | Different accessibility tree structure          | Use `native-tree` to inspect platform-specific identifiers      |
 | `expect()` fails despite text on screen      | Label+value merged into one accessibility node  | Use `containing` finder or match full merged text               |
 | Flow passes but wrong screen                 | Navigation succeeded but assertion is too loose | Tighten assertion to screen-specific element                    |
+| `pumpAndSettle()` never returns / times out  | WebView, streaming response, or looping animation keeps scheduling frames | Replace with a bounded `$.pump(Duration)` loop with an explicit exit condition (#16) |
+| `.tap()` call never returns, run stalls      | Zero-match finder — `waitUntilVisible` polls with no timeout | Guard with `finder.evaluate().isNotEmpty` before tapping — safeTap pattern (#21) |
+| `$('label').exists` is `false` despite element on screen | `$('text')` only matches `Text`/`RichText` widgets, not `Semantics.label`/`identifier` | Use `find.bySemanticsLabel(...)` or `find.byWidgetPredicate(...)` (#19) |
+| Wait loop times out even though the async call should have resolved | `$.pump(Duration)` advances the fake scheduler clock only, not real wall-clock time | Use a real-wait helper instead of a fake-clock pump loop — see [wait-strategies.md](../shared-references/wait-strategies.md) (#17) |
+
+---
+
+## Wait/Timing Failures
+
+A large share of Patrol flakiness comes from confusing simulated (fake) clock time with real wall-clock time:
+
+- `pumpAndSettle()` can spin forever when a WebView, a streaming response, or a continuous/looping animation keeps scheduling new frames — the scheduler never reports "settled."
+- `$.pump(Duration)` only advances the widget-test binding's fake scheduler clock; it never blocks for real wall-clock time. Waiting on a real network call or a BLoC event fired in `initState` inside a `$.pump(Duration)` loop can silently fail because the async work is never actually given time to complete.
+
+Both failure modes, plus the bounded-loop and real-wait patterns that fix them, are covered in [wait-strategies.md](../shared-references/wait-strategies.md). Consult it before reaching for a longer `pumpAndSettle()` timeout or a bigger pump loop.
 
 ---
 

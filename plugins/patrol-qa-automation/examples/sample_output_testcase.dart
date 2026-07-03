@@ -1,4 +1,4 @@
-// Expected output: patrol_test/testcases/login/verify_login_form_visible.dart
+// Expected output: integration_test/testcases/login/verify_login_form_visible.dart
 
 import 'package:patrol/patrol.dart';
 import 'package:your_app/main.dart';

@@ -47,8 +47,15 @@ skills/create-patrol-test/SKILL.md
 1. Read `skills/create-patrol-test/SKILL.md` for rules and templates.
 2. Read `skills/create-patrol-test/references/scenario_template.dart`
    for the template structure.
-3. Read `patrol_test/helpers/` to identify available shared helpers
-   (login, logout, navigation resets).
+3. Read `integration_test/helpers/` to identify available shared
+   helpers — notably `loginHelper($)` (login, calls `launchApp($)`
+   internally) from `helpers/login_helper.dart`, `ensureHome($)` for
+   state resets, and the `Checks` soft-assert collector from
+   `helpers/test_helpers.dart`.
+4. If this journey belongs in the always-run composite smoke set
+   instead of a standalone per-journey file, read
+   `skills/create-patrol-test/references/smoke_suite_template.dart`
+   and see "Alternative: composite smoke suite" below.
 
 ### Step 2 — Review testcases
 
@@ -69,54 +76,83 @@ Group testcases into logical segments:
 Structure:
 
 ```dart
+import 'package:flutter_test/flutter_test.dart';
 import 'package:patrol/patrol.dart';
-import 'package:your_app/main.dart';
-import '../helpers/login.dart';
-import '../testcases/<feature>/verify_screen.dart';
-import '../testcases/<feature>/perform_action.dart';
+import '../../helpers/app_helper.dart'; // clearAppData()
+import '../../helpers/login_helper.dart'; // loginHelper($) — calls launchApp() internally
+import '../../helpers/test_helpers.dart'; // Checks, existsEnId(), ensureHome(), etc.
+import '../../testcases/<feature>/verify_screen_test.dart'
+    show verifyScreenScenario;
+import '../../testcases/<feature>/perform_action_test.dart'
+    show performActionScenario;
 
 void main() {
+  setUpAll(clearAppData);
+
   patrolTest(
     '<feature>_<user_journey>: end-to-end journey',
     ($) async {
+      final c = Checks();
+
       // === ARRANGE ===
-      await $.pumpWidgetAndSettle(const MyApp());
-      await $.platform.mobile.grantPermissionWhenInUse();
-      await performLogin($);
+      // Log in ONCE for the whole journey. loginHelper($) calls
+      // launchApp($) internally, so this still satisfies the
+      // launchApp-first rule — do not re-launch or re-login per step.
+      await loginHelper($);
 
       // === ACT - Happy Path ===
-      await verifyScreen($);
-      await performAction($);
+      // Call the imported testcase scenario functions instead of
+      // inlining their steps.
+      await verifyScreenScenario($, c);
+      await performActionScenario($, c);
 
       // === ASSERT - Happy Path ===
-      expect($('Success'), findsOneWidget);
+      c.verify('TC020', existsEnId($, 'Success', 'Berhasil'),
+          'expected confirmation not shown for the happy path');
 
       // === Reset State ===
-      await performLogout($);
-      await navigateToLogin($);
+      await ensureHome($);
 
-      // === ACT - Error Path ===
-      // await verifyErrorState($);
+      // === ACT/ASSERT - Error Path ===
+      // await verifyErrorScenario($, c);
+      // c.verify('TC021', existsEnId($, 'Error message', 'Pesan galat'),
+      //     'expected error message not shown');
+
+      c.done();
     },
+    tags: const ['P0'],
   );
 }
 ```
 
 Rules:
 
+- Log in ONCE via `loginHelper($)` at the top of the journey — never
+  re-launch or re-log-in per step; it already calls `launchApp($)`
+  internally.
+- Prefer calling an imported `<name>Scenario($, c)` function — exported
+  by a `testcases/<feature>/` file and pulled in via
+  `import '...' show fooScenario;` — over inlining steps. Only write
+  inline code when no testcase covers the action yet.
 - Use `if (await $('text').exists)` for conditional testcase calls.
 - Pass data between testcase calls via function parameters when
   needed.
-- Insert a state reset (logout or navigate to home) between each
+- Insert a state reset (`ensureHome($)` or logout) between each
   independent error scenario.
-- End with `expect()` on a landmark element of the final screen.
+- Prefer `c.verify(...)` — the `Checks` soft-assert collector from
+  `helpers/test_helpers.dart` — over a bare `expect()`, so one failure
+  doesn't abort the rest of the journey. A bare `expect()` is still
+  fine for a hard precondition the rest of the file depends on.
+- End every `patrolTest` with `c.done()` instead of/alongside bare
+  `expect()` calls — it fails the test if any check failed, but only
+  after running everything and printing a summary.
 
 ### Step 4 — Run end-to-end
 
 Run the full scenario with `patrol test --target`:
 
 ```bash
-patrol test --target patrol_test/scenarios/<feature>/<journey>.dart
+patrol test --target integration_test/scenarios/<feature>/<journey>.dart
 ```
 
 When a step fails:
@@ -131,8 +167,24 @@ When a step fails:
 Save to:
 
 ```
-patrol_test/scenarios/<feature>/<journey_name>.dart
+integration_test/scenarios/<feature>/<journey_name>.dart
 ```
+
+### Alternative: composite smoke suite
+
+If this journey belongs in the always-run smoke set alongside every
+other feature — rather than living as a standalone per-journey file —
+compose it as one entry inside the root
+`integration_test/smoke_suite_test.dart` instead. That file runs a
+SINGLE `patrolTest`, tagged `smoke`, under one login: it imports every
+feature's exported `...Scenario` function and calls each through a
+local `run(name, scenario, {recover = true})` wrapper that try/catches
+the scenario (recording any failure into `Checks` without aborting the
+rest) and calls `ensureHome($)` to recover between scenarios. Ordering
+is deliberate — side-effecting scenarios (form submits, settings
+changes, sign-out) run LATE. See
+`skills/create-patrol-test/references/smoke_suite_template.dart` for
+the full pattern.
 
 ## Output
 

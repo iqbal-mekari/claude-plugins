@@ -67,6 +67,27 @@ Semantics(
 )
 ```
 
+## Patrol Finder Scope: Text vs. Semantics
+
+`$('text')` (Patrol's default finder) matches only `Text` and `RichText` widgets — it does **not** search `Semantics.label` or `Semantics.identifier`. A widget that only carries a `Semantics(identifier: ...)` or `Semantics(label: ...)` with no visible `Text` child is invisible to `$('...')`.
+
+To select by `Semantics.identifier` directly, search the **widget** tree:
+
+```dart
+final finder = find.byWidgetPredicate(
+  (widget) => widget is Semantics && widget.properties.identifier == 'submit_button',
+);
+await $(finder).tap();
+```
+
+To select by `Semantics.label`, use Flutter's built-in semantics finder:
+
+```dart
+expect(find.bySemanticsLabel('Submit'), findsOneWidget);
+```
+
+Prefer `byWidgetPredicate` for `identifier` matches — it queries the widget tree and works regardless of whether the semantics binding is enabled. Reserve `bySemanticsLabel` for `label` matches where no dedicated identifier exists.
+
 ## Common Widget Patterns
 
 ### FloatingActionButton

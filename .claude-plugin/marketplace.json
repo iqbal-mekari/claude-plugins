@@ -9,12 +9,12 @@
     {
       "name": "patrol-qa-automation",
       "source": "./plugins/patrol-qa-automation",
-      "description": "Claude Code agents and skills for Patrol-based mobile UI test automation. Generate, author, and debug Patrol test files for Flutter apps.",
-      "version": "1.0.0",
+      "description": "Claude Code agents and skills for Patrol-based mobile UI test automation. Generate, author, and debug Patrol integration tests for Flutter apps — with wait-strategy, soft-assert, and flakiness-hardening patterns.",
+      "version": "1.1.0",
       "author": {
         "name": "Iqbal"
       },
-      "keywords": ["patrol", "flutter", "testing", "mobile", "ui-automation", "qa"]
+      "keywords": ["patrol", "flutter", "testing", "mobile", "ui-automation", "qa", "integration-testing"]
     },
     {
       "name": "designer-agent",

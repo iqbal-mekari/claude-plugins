@@ -72,38 +72,105 @@ for the full decision tree:
 If no selector works, note that `Semantics(identifier: '...', container: true)` must
 be added to the Flutter widget and the app rebuilt — include this in your output summary.
 
+For any text finder, prefer the locale-safe helpers from
+`helpers/test_helpers.dart` over a single hardcoded string — see Step 4.
+
 ### Step 3 — Map localization
 
 1. Find string literals used in the test steps in the screen source.
-2. Locate the ARB key in the l10n files.
-3. Use one of these approaches in the test:
-   - Direct text matching: `$('Login').tap()` (preferred for simple
-     cases)
-   - `AppLocalizations.of($)` for dynamic/localized strings
+2. Locate the string in both the primary and secondary locale l10n files.
+3. Use one of these approaches in the test, in order of preference:
+   - `t($, primaryLocaleText, secondaryLocaleText)` — locale-safe helper
+     that returns whichever of the two locale strings is present as a
+     `PatrolFinder` (preferred for tappable/assertable text).
+   - `existsEnId($, primaryLocaleText, secondaryLocaleText)` — locale-safe
+     bool check for whether either locale string is visible.
+   - `bySemId(id)` / `bySemLabel(label)` — `Finder`s matching
+     `Semantics.identifier` / `Semantics.label` when text is unstable.
+   - Direct single-locale text matching: `$('Login').tap()` — only when
+     the app under test is locked to one locale.
 
 ### Step 4 — Write Dart
 
-Follow the AAA pattern from the skill template:
+Follow the two-form structure from `testcase_template.dart`:
 
-```dart
-// ARRANGE — preconditions / setup
-// ACT     — user interactions
-// ASSERT  — expected UI state
-```
+1. **Export a top-level scenario function** —
+   `Future<void> <action><Target>Scenario(PatrolIntegrationTester $, Checks c) async { ... }`
+   holding the actual steps in AAA order:
 
-Apply relevant rules from SKILL.md:
+   ```dart
+   // ARRANGE — preconditions / setup
+   // ACT     — user interactions
+   // ASSERT  — expected UI state
+   ```
 
-- Patrol finder patterns (text, Key, type, ancestor, containing)
-- `enterText()` pattern (tap field first, then enter text)
-- Timeout conventions (`waitUntilVisible`)
-- `pumpWidgetAndSettle()` for app launch
+   Exporting this function lets `scenarios/` files and `smoke_suite_test.dart`
+   `import '...' show <action><Target>Scenario;` and reuse the steps instead
+   of duplicating them.
+
+2. **Keep `main()` thin** — one `patrolTest` that calls `launchApp($)` (or a
+   login helper like `loginHelper($)`, which calls `launchApp($)`
+   internally) first, then constructs a `Checks()`, calls the exported
+   scenario, and finishes with `c.done()`:
+
+   ```dart
+   void main() {
+     setUpAll(clearAppData);
+     patrolTest(
+       '<action> <target>: <brief description>',
+       ($) async {
+         await loginHelper($); // or `await launchApp($);` for a login testcase
+         final c = Checks();
+         await <action><Target>Scenario($, c);
+         c.done();
+       },
+       tags: const ['P0'],
+     );
+   }
+   ```
+
+Apply these rules while writing:
+
+- **`launchApp($)` first, always.** Directly, or transitively via a login
+  helper. Never call `pumpAndSettle()` or any finder before it — nothing
+  exists on screen yet.
+- **One `patrolTest` per file.** The Android Test Orchestrator only runs the
+  FIRST app-launching test in a bundle — a second `patrolTest()` in the same
+  file is silently skipped in CI. Report additional logical checks through
+  `Checks`, not additional `patrolTest()` blocks.
+- **Use `Checks` instead of a bare `expect()`** for anything that should be
+  soft-asserted (from `helpers/test_helpers.dart`):
+  - `c.verify(id, boolCondition, reason)` — record a pass/fail check.
+  - `c.skip(id, why)` — record a step that could not be automated.
+  - `await c.verifyAsync(id, () async { ... }, reason)` — record an async
+    probe's result.
+  - `c.done()` — call once, at the end of the `patrolTest` in `main()` (not
+    inside the exported scenario). Fails the test if any check failed, but
+    only after everything has run and a summary has printed.
+  - A bare `expect()` is still fine for a genuine hard stop that the rest of
+    the file depends on.
+- **Locale-safe selectors** — use `t($, primaryLocaleText, secondaryLocaleText)`,
+  `existsEnId($, primaryLocaleText, secondaryLocaleText)`, `bySemId(id)`, or
+  `bySemLabel(label)` from `helpers/test_helpers.dart` (see Step 3).
+- **Credentials and seed data via `--dart-define`, never hardcoded.** Declare
+  with a non-secret default:
+  `const _testEmail = String.fromEnvironment('TEST_EMAIL', defaultValue: 'user@example.com');`.
+  If a required precondition was not injected, call
+  `markTestSkipped('reason: needs X via --dart-define')` and `return` —
+  do NOT fail the test.
+- **Tag** every `patrolTest` with `tags: const ['P0']` for a focused
+  per-feature testcase living in `testcases/<feature>/*.dart`.
+- Still apply the general Patrol conventions from
+  `create-patrol-test/SKILL.md`: finder patterns (text / Key / type /
+  ancestor / containing), the `enterText()` pattern (tap the field first,
+  then enter text), and `waitUntilVisible` timeout conventions.
 
 ### Step 5 — Validate by running
 
 1. Run the test via `patrol test --target` to confirm it executes
    on the live device:
    ```bash
-   patrol test --target patrol_test/testcases/login/tap_login_button.dart
+   patrol test --target integration_test/testcases/login/tap_login_button.dart --tags P0
    ```
 2. If a step fails, inspect the view hierarchy FIRST via the CLI
    command (see [cli-commands.md](../shared-references/cli-commands.md)),
@@ -115,7 +182,7 @@ Apply relevant rules from SKILL.md:
 Save the validated Dart file to:
 
 ```
-patrol_test/testcases/<screen>/<action_name>.dart
+integration_test/testcases/<feature>/<action>.dart
 ```
 
 ## Output
@@ -123,7 +190,10 @@ patrol_test/testcases/<screen>/<action_name>.dart
 Return a summary:
 
 - **File saved**: path to created testcase
+- **Scenario exported**: name of the `<action><Target>Scenario` function
 - **Finders used**: one line per element (text / Key / type / ancestor)
-- **Localization approach**: direct text or AppLocalizations
+- **Localization approach**: locale-safe helper (`t`/`existsEnId`/`bySemId`/
+  `bySemLabel`) or direct single-locale text
 - **Semantics needed**: any Flutter widget changes required
-- **Skipped steps**: any steps that could not be automated
+- **Skipped steps**: any steps that could not be automated (recorded via
+  `c.skip`)

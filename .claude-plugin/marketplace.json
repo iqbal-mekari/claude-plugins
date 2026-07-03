@@ -45,6 +45,16 @@
         "name": "Iqbal"
       },
       "keywords": ["code-review", "bitbucket", "pr-review", "security", "performance", "quality", "multi-agent"]
+    },
+    {
+      "name": "sync-upstream",
+      "source": "./plugins/sync-upstream",
+      "description": "Sync project-locally installed (vendored) plugins with the upstream mekari-tools marketplace repo. Three-way merges upstream changes into local plugin copies while preserving project-specific tailoring. Update-only: never adds or removes plugins.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Iqbal"
+      },
+      "keywords": ["sync", "upstream", "plugin-management", "vendored-plugins", "three-way-merge", "marketplace"]
     }
   ]
 }

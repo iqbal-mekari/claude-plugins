@@ -1,0 +1,15 @@
+{
+  "extraKnownMarketplaces": {
+    "mekari-tools-local": {
+      "source": {
+        "source": "directory",
+        "path": "./vendor/claude-plugins"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "patrol-qa-automation@mekari-tools-local": true,
+    "feature-flag-cleanup@mekari-tools-local": true,
+    "sync-upstream@mekari-tools-local": true
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "upstream": "https://github.com/iqbal-mekari/claude-plugins",
+  "lastSyncedCommit": "5e2c942f0000000000000000000000000000dead",
+  "lastSyncedAt": "2026-07-03T09:00:00Z",
+  "plugins": {
+    "patrol-qa-automation": { "version": "1.1.0" },
+    "feature-flag-cleanup": { "version": "1.0.0" },
+    "sync-upstream": { "version": "1.0.0" }
+  }
+}

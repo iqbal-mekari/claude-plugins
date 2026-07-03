@@ -40,6 +40,11 @@ plugins/
     skills/                       ← Skill definitions (6 skills)
     reviewers/                    ← Persona prompts (security, performance, quality)
     examples/                     ← Sample review output
+  sync-upstream/                  ← Vendored-plugin sync with this repo
+    .claude-plugin/plugin.json    ← Plugin metadata
+    AGENTS.md                     ← Agent/skill instructions
+    skills/                       ← Skill definitions (sync-upstream)
+    examples/                     ← Reference settings.json + sync-state schema
 ```
 
 When adding a new plugin: create `plugins/<name>/` with `.claude-plugin/plugin.json`, then register it in the root `.claude-plugin/marketplace.json`.
@@ -128,6 +133,26 @@ AI-powered Bitbucket PR review agent with multi-persona analysis. Combines a det
 - Always confirm before posting — never posts comments without explicit user approval
 - Review rules support 4-layer priority chain: CLI flag > project config > global config > built-in defaults
 
+## Plugin Architecture: sync-upstream
+
+Sync agent for **consuming projects that vendor plugins project-locally** (a committed `vendor/claude-plugins/` local marketplace) instead of installing from the GitHub marketplace. Pulls upstream improvements from this repo into the vendored copies via a tracked three-way merge, preserving each project's local tailoring.
+
+**Skills:**
+- `sync-upstream` (`/sync-upstream`) — Full sync workflow: locate vendored plugins → fetch upstream → three-way merge (base = `lastSyncedCommit` in `.sync-state.json`, ours = local, theirs = upstream HEAD) → verify → report
+
+**Key design decisions:**
+- Update-only — never adds plugins not already vendored, never removes vendored plugins (even if dropped upstream)
+- Three-way or no way — never blind-overwrites local files; missing merge base triggers version-matching bootstrap or supervised diff
+- Runs in consuming projects only — refuses to run inside this upstream repo
+- Rule conflicts surface to the user — parametric tailoring is preserved automatically; contradictory rule changes are never resolved silently
+- Scope boundary — writes only inside the vendored plugins directory + `.sync-state.json`; never commits; never touches the user-level plugin cache
+
+## Distribution Model
+
+- **Standard mode (default):** projects enable plugins from the GitHub marketplace via checked-in `.claude/settings.json` (`extraKnownMarketplaces` + `enabledPlugins`). Project-specific *facts* (paths, module names, flavors) live in the project's own CLAUDE.md — no vendoring needed.
+- **Project-local mode:** only for projects that must tailor plugin *rules*. They vendor plugins under `vendor/claude-plugins/`, register it as a local `directory` marketplace, and sync deliberately with `/sync-upstream`. See root `README.md` for the walkthrough.
+- **Upstreaming:** lessons learned in projects flow back here — generalized (no project names/paths), appended to the right reference file, with a version bump in `plugin.json`. Every change must pass the litmus test: *would a different repo using this plugin benefit?*
+
 ## Critical Rules
 
 1. **Read the relevant `SKILL.md` before any task** — it is the authoritative source, overriding any legacy patterns.
@@ -202,3 +227,6 @@ Agents must never proceed past gates 1 or 2 without explicit human approval. See
 - `plugins/code-review-agent/agents/pr-reviewer.md` — PR reviewer agent pipeline definition
 - `plugins/code-review-agent/skills/review-pr/SKILL.md` — Main entry point for PR review
 - `plugins/code-review-agent/examples/sample_review_output.md` — Example review output format
+- `plugins/sync-upstream/skills/sync-upstream/SKILL.md` — Vendored-plugin sync workflow (7 phases, merge matrix)
+- `plugins/sync-upstream/examples/consuming-project-settings.json` — Reference `.claude/settings.json` for consuming projects
+- `plugins/sync-upstream/examples/sync-state.example.json` — `.sync-state.json` schema (merge-base tracking)

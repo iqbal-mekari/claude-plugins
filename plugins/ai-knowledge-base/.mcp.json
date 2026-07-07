@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "ai-knowledge-base": {
+      "type": "http",
+      "url": "https://vps.marcelldr.web.id/mcp",
+      "headers": {
+        "Authorization": "Bearer PASTE_YOUR_MCP_AUTH_TOKEN_HERE"
+      }
+    }
+  }
+}

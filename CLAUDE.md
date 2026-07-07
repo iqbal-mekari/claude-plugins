@@ -45,6 +45,13 @@ plugins/
     AGENTS.md                     ← Agent/skill instructions
     skills/                       ← Skill definitions (sync-upstream)
     examples/                     ← Reference settings.json + sync-state schema
+  ai-knowledge-base/              ← Self-hosted GraphRAG codebase knowledge base
+    .claude-plugin/plugin.json    ← Plugin metadata
+    .mcp.json                     ← MCP server config (ai-knowledge-base, remote HTTP)
+    AGENTS.md                     ← Agent/skill instructions
+    agents/                       ← Agent definitions (codebase-explorer)
+    skills/                       ← Skill definitions (use-knowledge-base, index-project, delete-project, distill-session)
+    examples/                     ← Sample workflows (search, index, distill, delete)
 ```
 
 When adding a new plugin: create `plugins/<name>/` with `.claude-plugin/plugin.json`, then register it in the root `.claude-plugin/marketplace.json`.
@@ -147,6 +154,25 @@ Sync agent for **consuming projects that vendor plugins project-locally** (a com
 - Rule conflicts surface to the user — parametric tailoring is preserved automatically; contradictory rule changes are never resolved silently
 - Scope boundary — writes only inside the vendored plugins directory + `.sync-state.json`; never commits; never touches the user-level plugin cache
 
+## Plugin Architecture: ai-knowledge-base
+
+Self-hosted GraphRAG knowledge base that indexes codebases via tree-sitter → symbol graph → embeddings, backed by a shared team server (remote HTTP MCP) — no per-user setup for search, no external LLM/API cost.
+
+**Agent:**
+- `codebase-explorer` — Answers questions about an indexed codebase: search → drill into symbols → trace call graph → assess blast radius → optionally store a memory.
+
+**Skills:**
+- `use-knowledge-base` — Full MCP tools reference + common workflows; read before any MCP call
+- `index-project` — Indexes/re-indexes a project via a local script (no MCP server involved — needs local disk access)
+- `delete-project` — Deletes a project or single ref/snapshot via a local script (needs the Supabase service-role key; always preview before `--confirm`)
+- `distill-session` (`/distill-session`) — Bulk-extracts a session's durable learnings into typed memories
+
+**Key design decisions:**
+- Remote-first — `search`, `get_symbol`, `get_neighbors`, `impact`, and memory/skill CRUD run against the shared hosted MCP server; no local Docker/Supabase needed for read paths
+- Indexing/deleting are never MCP tool calls — both require local filesystem access or the admin-level Supabase service-role key, so they run as bundled shell scripts instead
+- Host does the distillation — `distill-session` extraction happens in Claude, not server-side, since there's no server-side LLM
+- Destructive by exception — deletion always previews before requiring `--confirm`
+
 ## Distribution Model
 
 - **Standard mode (default):** projects enable plugins from the GitHub marketplace via checked-in `.claude/settings.json` (`extraKnownMarketplaces` + `enabledPlugins`). Project-specific *facts* (paths, module names, flavors) live in the project's own CLAUDE.md — no vendoring needed.
@@ -230,3 +256,7 @@ Agents must never proceed past gates 1 or 2 without explicit human approval. See
 - `plugins/sync-upstream/skills/sync-upstream/SKILL.md` — Vendored-plugin sync workflow (7 phases, merge matrix)
 - `plugins/sync-upstream/examples/consuming-project-settings.json` — Reference `.claude/settings.json` for consuming projects
 - `plugins/sync-upstream/examples/sync-state.example.json` — `.sync-state.json` schema (merge-base tracking)
+- `plugins/ai-knowledge-base/AGENTS.md` — Agent/skill details, MCP tool reference, and setup instructions
+- `plugins/ai-knowledge-base/skills/use-knowledge-base/SKILL.md` — Full MCP tools reference + common workflows
+- `plugins/ai-knowledge-base/skills/index-project/SKILL.md` — Indexing workflow (local script, no MCP call)
+- `plugins/ai-knowledge-base/skills/delete-project/SKILL.md` — Deletion workflow (preview-then-confirm)

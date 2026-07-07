@@ -55,6 +55,16 @@
         "name": "Iqbal"
       },
       "keywords": ["sync", "upstream", "plugin-management", "vendored-plugins", "three-way-merge", "marketplace"]
+    },
+    {
+      "name": "ai-knowledge-base",
+      "source": "./plugins/ai-knowledge-base",
+      "description": "Self-hosted GraphRAG knowledge base for indexing and querying codebases. Search symbols, store session learnings, and manage project knowledge — backed by a shared team server, no external API cost.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mekari"
+      },
+      "keywords": ["knowledge-base", "graphrag", "codebase", "search", "memory", "mcp", "supabase", "embeddings"]
     }
   ]
 }
